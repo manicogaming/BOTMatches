@@ -84,7 +84,7 @@ include ('head.php');
 						echo '</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total Kills: </strong>'.$row["totalkills"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total Deaths: </strong>'.$row["totaldeaths"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Average KDR: </strong>'.$kdr_roundup.'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Average ADR: </strong>'.$ADR_roundup.'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 5Ks: </strong>'.$row["total5k"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 4Ks: </strong>'.$row["total4k"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 3Ks: </strong>'.$row["total3k"].'</li>';
                   
                 
-                echo '</ul></div><div class="col-lg-2"></div></div></div></div>';    
+                echo '</ul></div><div class="col-lg-12 text-center" style="margin-top:10px;"><a class="btn btn-outline-dark py-2 px-4" href="localhost:8080/player/'.$row['id'].'" target="_blank" rel="noopener nofollow">More Stats</a></div></div></div></div>';    
                 
     } else {
         echo '<h4 style="margin-top:40px;text-align:center;">No Match with that ID!</h4>';
