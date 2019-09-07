@@ -1,134 +1,72 @@
 <?php
-require ('config.php');
+require ("config.php");
 
-if(isset($_GET["id"])){
-    $id = $_GET["id"];
+if (isset($_GET["id"])) {
+    $match_id = $_GET["id"];
 } else {
-    $id = 0;
+    $match_id = 0;
 }
 
-settype($id, "integer"); 
-
-$sql = "SELECT sql_players.id, sql_matches.match_id, sql_matches_scoretotal.timestamp, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name, sql_matches.name, sql_matches.kills, sql_matches.deaths, sql_matches.team, sql_matches.5k, sql_matches.4k, sql_matches.3k, sql_matches.damage
-        FROM sql_matches_scoretotal INNER JOIN sql_matches INNER JOIN sql_players
-        ON sql_matches_scoretotal.match_id = sql_matches.match_id AND sql_players.name LIKE sql_matches.name
-        WHERE sql_matches_scoretotal.match_id = ".$id." ORDER BY sql_matches.kills DESC";
-
-$result_stats1 = $conn->query($sql);
-$result_stats2 = $conn->query($sql);
-$result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html>
 
-<?php
-include ('head.php');
-?>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $page_title; ?></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/4.1.2/darkly/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="assets/css/Search-Field-With-Icon.css?h=407fbd3e4331a9634a54008fed5b49b9">
+    <link rel="stylesheet" href="assets/css/styles.css?h=a95bd1c65d4dfacc3eae1239db3fae0b">
+</head>
 
 <body>
-    <a href="index.php" style="color:#000000;"><h1 class="text-center" style="margin-top:15px;"><?php echo $site_name; ?></h1></a>
-    <?php 
-    if($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-		$AVERAGE_KPR = 0.679;
-		$AVERAGE_SPR = 0.317;
-		$AVERAGE_RMK = 1.277;
-		$rounds = ($row["team_2"] + $row["team_3"]);
+    <div class="container" style="margin-top:20px;">
+<?php
+        require ("head.php");
 		
-        echo '<div class="card pulse" style="width:100%;margin-right:auto;margin-left:auto;background-color:#282828;background-image: linear-gradient(#282828 , white 60%);margin-top:25px;">
-        <div class="container-fluid card-body">
-			<div class="row">
-				<div class="col-lg-2 d-flex justify-content-start justify-content-lg-end">
-					<img src="assets/img/logos/'.$row["team_2_name"].'.png" style="width:125px;height:125px;">
-				</div>
-				<div class="col-lg-8">
-					<div class="row" style="font-size:50px;margin-bottom:0px;margin-top:25px;">
-						<div class="col-lg-5">
-							<p class="text-white">'.$row["team_2_name"].'</p>
-						</div>
-						<div class="col-lg-2 text-center text-white">
-							<strong style="color:rgb(91,118,141);">'.$row["team_2"].'</strong>:<strong style="color:rgb(172,155,102);">'.$row["team_3"].'</strong>
-						</div>
-						<div class="col-lg-5 text-right">
-							<p class="text-white">'.$row["team_3_name"].'</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-2 d-flex justify-content-end justify-content-lg-start">
-					<img src="assets/img/logos/'.$row["team_3_name"].'.png" style="width:125px;height:125px;">
-				</div>
-			</div>
-			<div class="row my-4">
-				<div class="col-lg-12">
-					<h1 class="text-center text-white" style="font-size:20px;">Map: '.$row["map"].'</h1>
-					<h1 class="text-center text-white" style="font-size:20px;">Ended: '.$row["timestamp"].'</h1>
-				</div>
-			</div>
-			<div class="row mt-3">
-				<div class="col-lg-5">
-					<div class="row no-gutters text-center">
-						<div class="col-lg-7">
-							<p>Player</p>
-						</div>
-						<div class="col-lg-1">
-							<p>Kills</p>
-						</div>
-						<div class="col-lg-1">
-							<p>Deaths</p>
-						</div>
-						<div class="col-lg-1">
-							<p>KDR</p>
-						</div>
-						<div class="col-lg-1">
-							<p class="pr-2">ADR</p>
-						</div>
-						<div class="col-lg-1">
-							<p class="pr-3">Rating</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-2">
-				</div>
-				<div class="col-lg-5">
-					<div class="row no-gutters text-center">
-						<div class="col-lg-7">
-							<p>Player</p>
-						</div>
-						<div class="col-lg-1">
-							<p>Kills</p>
-						</div>
-						<div class="col-lg-1">
-							<p>Deaths</p>
-						</div>
-						<div class="col-lg-1">
-							<p>KDR</p>
-						</div>
-						<div class="col-lg-1">
-							<p class="pr-2">ADR</p>
-						</div>
-						<div class="col-lg-1">
-							<p class="pr-3">Rating</p>
-						</div>
-					</div>
-				</div>
-			</div>
-            <div class="row">
-				<div class="col-lg-5">
-				<ul class="list-group">';
-
-                while($row = $result_stats1->fetch_assoc()) {
-                    if($row['team'] == '2') { 
-    
-                        if($row["kills"] && $row["deaths"] > 0){
-                            $kdr = ($row["kills"]/$row["deaths"]); 
-                            $kdr_roundup = round($kdr,2);
-    
-                        } else {
-                            $kdr_roundup = $row["kills"];
-
-                        }
+		function unicode2html($str){
+            // Set the locale to something that's UTF-8 capable
+            setlocale(LC_ALL, 'en_US.UTF-8');
+            // Convert the codepoints to entities
+            $str = preg_replace("/u([0-9a-fA-F]{4})/", "&#x\\1;", $str);
+            // Convert the entities to a UTF-8 string
+            return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $str);
+        }
+		
+        $match_id = $conn->real_escape_string($match_id);
+		$sql = "SELECT sql_players.id, sql_matches.match_id, sql_matches_scoretotal.timestamp, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name, sql_matches.name, sql_matches.kills, sql_matches.deaths, sql_matches.team, sql_matches.5k, sql_matches.4k, sql_matches.3k, sql_matches.damage
+        FROM sql_matches_scoretotal INNER JOIN sql_matches INNER JOIN sql_players
+        ON sql_matches_scoretotal.match_id = sql_matches.match_id AND sql_players.name LIKE sql_matches.name
+        WHERE sql_matches_scoretotal.match_id = ".$match_id." ORDER BY sql_matches.kills DESC";     
+		
+		$result = $conn->query($sql);
+		
+		if ($result->num_rows > 0) {
+            $t = '';
+            $ct = '';
+			$AVERAGE_KPR = 0.679;
+			$AVERAGE_SPR = 0.317;
+			$AVERAGE_RMK = 1.277;
+			
+            while ($row = $result->fetch_assoc()) {
+				$rounds = ($row["team_2"] + $row["team_3"]);
+                if ($row["kills"] > 0 && $row["deaths"] > 0) {
+                    $kdr = round(($row["kills"] / $row["deaths"]), 2); 
+                } else {
+                    $kdr = 0;
+                }
+					if ($row["team"] == 2) {
+						$t_score = $row["team_2"];
+						$t_name = $row["team_2_name"];
+						if ($t_name == NULL) {
+							$t_name = "Terrorists";
+						}
 						$killRating = $row["kills"] / $rounds / $AVERAGE_KPR;
-						
+							
 						$survivalRating = ($rounds - $row["deaths"]) / $rounds / $AVERAGE_SPR;
 						
 						$rounds1k = $rounds - ($row["3k"] + $row["4k"] + $row["5k"]);
@@ -139,34 +77,23 @@ include ('head.php');
 						
 						$ADR = $row["damage"]/ $rounds;
 						$ADR_roundup = round($ADR,0);
-						
-						if($rating_roundup > 1)
-						{
-							echo '<li class="list-group-item text-center mt-2"><span class="float-right font-weight-bold" style="color:green;margin-top:10px;width:39px;">'.$rating_roundup;
+						$t .= '
+						<tr>
+							<td><a href="player.php?id='.$row['id'].'" class="text-white">'.unicode2html(htmlspecialchars(substr($row["name"],0,12))).'</a></td>
+							<td>'.$row["kills"].'</td>
+							<td>'.$row["deaths"].'</td>
+							<td>'.$kdr.'</td>
+							<td>'.$ADR_roundup.'</td>
+							<td>'.$rating_roundup.'</td>
+						</tr>';
+					} elseif ($row["team"] == 3) {
+						$ct_score = $row["team_3"];
+						$ct_name = $row["team_3_name"];
+						if ($ct_name == NULL) {
+							$ct_name = "Counter-Terrorists";
 						}
-						else
-						{
-							echo '<li class="list-group-item text-center mt-2"><span class="float-right font-weight-bold" style="color:red;margin-top:10px;width:39px;">'.$rating_roundup;
-						}
-						
-						echo '</span><span class="float-right" style="margin-top:10px;width:39px;margin-right:20px;">'.$ADR_roundup.'</span><span class="float-right" style="margin-top:10px;width:39px;margin-right:20px;">'.$kdr_roundup.'</span><span class="float-right" style="margin-top:10px;width:39px;margin-right:20px;">'.$row["deaths"].'</span><span class="float-right" style="margin-top:10px;width:50px;margin-right:20px;">'.$row["kills"].'</span><a href="players/'.htmlspecialchars(substr($row['name'],0,128)).'.php"><a href="player.php?id='.$row['id'].'"><span class="float-left" style="margin-top:10px;margin-left:5px;color:#000000;">'.htmlspecialchars(substr($row['name'],0,128)).'</span></a></li>';
-                    }
-                }
-                
-                echo '</ul></div><div class="col-lg-2"></div><div class="col-lg-5"><ul class="list-group">';             
-
-                while($row = $result_stats2->fetch_assoc()){
-                    if($row['team'] == '3'){
-    
-                        if($row["kills"] && $row["deaths"] > 0){
-                            $kdr = ($row["kills"]/$row["deaths"]); 
-                            $kdr_roundup = round($kdr,2);
-    
-                        } else {
-                            $kdr_roundup = $row["kills"];
-                        }
 						$killRating = $row["kills"] / $rounds / $AVERAGE_KPR;
-						
+							
 						$survivalRating = ($rounds - $row["deaths"]) / $rounds / $AVERAGE_SPR;
 						
 						$rounds1k = $rounds - ($row["3k"] + $row["4k"] + $row["5k"]);
@@ -177,31 +104,93 @@ include ('head.php');
 						
 						$ADR = $row["damage"]/ $rounds;
 						$ADR_roundup = round($ADR,0);
-                        
-                        if($rating_roundup > 1)
-						{
-							echo '<li class="list-group-item text-center mt-2"><span class="float-right font-weight-bold" style="color:green;margin-top:10px;width:39px;">'.$rating_roundup;
-						}
-						else
-						{
-							echo '<li class="list-group-item text-center mt-2"><span class="float-right font-weight-bold" style="color:red;margin-top:10px;width:39px;">'.$rating_roundup;
-						}
-						
-						echo '</span><span class="float-right" style="margin-top:10px;width:39px;margin-right:20px;">'.$ADR_roundup.'</span><span class="float-right" style="margin-top:10px;width:39px;margin-right:20px;">'.$kdr_roundup.'</span><span class="float-right" style="margin-top:10px;width:39px;margin-right:20px;">'.$row["deaths"].'</span><span class="float-right" style="margin-top:10px;width:50px;margin-right:20px;">'.$row["kills"].'</span><a href="players/'.htmlspecialchars(substr($row['name'],0,128)).'.php"><a href="player.php?id='.$row['id'].'"><span class="float-left" style="margin-top:10px;margin-left:5px;color:#000000;">'.htmlspecialchars(substr($row['name'],0,128)).'</span></a></li>';
-                    }
+						$ct .= '
+						<tr>
+							<td><a href="player.php?id='.$row['id'].'" class="text-white">'.unicode2html(htmlspecialchars(substr($row["name"],0,12))).'</a></td>
+							<td>'.$row["kills"].'</td>
+							<td>'.$row["deaths"].'</td>
+							<td>'.$kdr.'</td>
+							<td>'.$ADR_roundup.'</td>
+							<td>'.$rating_roundup.'</td>
+						</tr>';
+					}
                 }
-                
-                echo '</ul></div></div></div></div>';
-                
-    } else {
-        echo '<h4 style="margin-top:40px;text-align:center;">No Match with that ID!</h4>';
-    }
-    $conn->close();
-    ?>
-    <div class="bottom"><a href="https://github.com/WardPearce/Sourcemod-SQLMatches" target="_blank">Created By Ward, Edited by manico</a></div>
+				if (!isset($ct)) {
+                    $ct = '<h3 style="margin-top:20px;text-align:center;">No Players Recorded!</h3>';
+                }
+                if (!isset($t)) {
+                    $t = '<h3 style="margin-top:20px;text-align:center;">No Players Recorded!</h3>';
+                }
+                echo '
+                <div class="row" style="margin-top:20px;">
+                    <div class="col-md-12">
+                        <div class="card rounded-borders" style="border: none !important;">
+                            <div class="card-body" style="padding-right:0px;padding-left:0px;padding-bottom:0px;padding-top:0px;">
+                            <div style="background-color:#5b768d;height:25px;">
+                                <h3 class="text-uppercase text-center text-white" style="font-size:22px;">'.$ct_name.'<br></h3>
+                            </div>
+                                <div class="table-responsive" style="border: none !important;">
+                                    <table class="table">
+                                        <thead class="table-borderless" style="border: none !important;">
+                                            <tr>
+                                                <th style="width:200px;">Player</th>
+                                                <th>Kills</th>
+                                                <th>Deaths</th>
+                                                <th>KDR</th>
+                                                <th>ADR</th>
+                                                <th>Rating</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        '.$ct.'
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 class="text-center" style="margin-top:10px;margin-bottom:10px;"><span style="color:#5b768d;">'.$ct_score.'</span>:<span style="color:#ac9b66;">'.$t_score.'</span></h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card rounded-borders" style="border: none !important;">
+                            <div class="card-body" style="padding-right:0px;padding-left:0px;padding-bottom:0px;padding-top:0px;">
+                                <div style="background-color:#ac9b66;height:25px;">
+                                    <h3 class="text-uppercase text-center text-white" style="font-size:22px;">'.$t_name.'<br></h3>
+                                </div>
+                                <div class="table-responsive" style="border-top:none !important;">
+                                    <table class="table">
+                                        <thead class="table-borderless" style="border: none !important;">
+                                            <tr>
+                                                <th style="width:200px;">Player</th>
+                                                <th>Kills</th>
+                                                <th>Deaths</th>
+                                                <th>KDR</th>
+                                                <th>ADR</th>
+                                                <th>Rating</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        '.$t.'
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>';
+        } else {
+            echo '<h4 style="margin-top:40px;text-align:center;">No Match with that ID!</h4>';
+        }
+?>
+    <a class="text-white" href="https://github.com/DistrictNineHost/Sourcemod-SQLMatches" target="_blank" style="position:fixed;bottom:0px;right:10px;">Developed by DistrictNine.Host</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/bs-animation.js"></script>
+    <script src="assets/js/bs-animation.js?h=98fdbbd86223499341d76166d015c405"></script>
 </body>
 
 </html>

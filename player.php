@@ -25,12 +25,23 @@ $roundresult = $conn->query($sqltotalrounds);
 <!DOCTYPE html>
 <html>
 
-<?php
-include ('head.php');
-?>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $page_title; ?></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/4.1.2/darkly/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="assets/css/Search-Field-With-Icon.css?h=407fbd3e4331a9634a54008fed5b49b9">
+    <link rel="stylesheet" href="assets/css/styles.css?h=a95bd1c65d4dfacc3eae1239db3fae0b">
+</head>
 
 <body>
-    <a href="index.php" style="color:#000000;"><h1 class="text-center" style="margin-top:15px;"><?php echo $site_name; ?></h1></a>
+<div class="container" style="margin-top:20px;">
+    <?php
+include ('head.php');
+?>
     <?php 
     if($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -40,7 +51,7 @@ include ('head.php');
 		$AVERAGE_RMK = 1.277;
 		$rounds = ($rowround["team_2_total"] + $rowround["team_3_total"]);
 		
-        echo '<div class="card pulse" style="width:100%;margin-right:auto;margin-left:auto;background-color:#282828;background-image: linear-gradient(#282828 40%, white );margin-top:25px;">
+        echo '<div style="width:100%;margin-right:auto;margin-left:auto;background-color:#282828;margin-top:25px;">
         <div class="container-fluid card-body">
 			<div class="row">
 				<div class="col-md-12 text-white text-center" style="font-size:50px;margin-bottom:25px;">
@@ -74,27 +85,27 @@ include ('head.php');
 						
 						if($rating_roundup > 1)
 						{
-							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:green;margin-top:10px;"><span style="color:#212529;">Average Rating: </span>'.$rating_roundup;
+							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:green;margin-top:10px;"><span style="color:white;">Average Rating: </span>'.$rating_roundup;
 						}
 						else
 						{
-							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:red;margin-top:10px;"><span style="color:#212529;">Average Rating: </span>'.$rating_roundup;
+							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:red;margin-top:10px;"><span style="color:white;">Average Rating: </span>'.$rating_roundup;
 						}
 						
 						echo '</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total Kills: </strong>'.$row["totalkills"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total Deaths: </strong>'.$row["totaldeaths"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Average KDR: </strong>'.$kdr_roundup.'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Average ADR: </strong>'.$ADR_roundup.'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 5Ks: </strong>'.$row["total5k"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 4Ks: </strong>'.$row["total4k"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 3Ks: </strong>'.$row["total3k"].'</li>';
                   
                 
-                echo '</ul></div><div class="col-lg-12 text-center" style="margin-top:10px;"><a class="btn btn-outline-dark py-2 px-4" href="localhost:8080/player/'.$row['id'].'" target="_blank" rel="noopener nofollow">More Stats</a></div></div></div></div>';    
+                echo '</ul></div><div class="col-lg-12 text-center" style="margin-top:10px;"><a class="btn btn-light py-2 px-4" href="localhost:8080/player/'.$row['id'].'" target="_blank" rel="noopener nofollow">More Stats</a></div></div></div></div>';    
                 
     } else {
         echo '<h4 style="margin-top:40px;text-align:center;">No Match with that ID!</h4>';
     }
     $conn->close();
     ?>
-    <div class="bottom"><a href="https://github.com/WardPearce/Sourcemod-SQLMatches" target="_blank">Created By Ward, Edited by manico</a></div>
+    <a class="text-info" href="https://github.com/DistrictNineHost/Sourcemod-SQLMatches" target="_blank" style="position:fixed;bottom:0px;right:10px;">Developed by DistrictNine.Host</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/bs-animation.js"></script>
+    <script src="assets/js/bs-animation.js?h=98fdbbd86223499341d76166d015c405"></script>
 </body>
 
 </html>
