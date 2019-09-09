@@ -152,7 +152,7 @@ if (isset($_GET["id"])) {
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <h1 class="text-center" style="margin-top:10px;margin-bottom:10px;"><span style="color:#5b768d;">'.$ct_score.'</span>:<span style="color:#ac9b66;">'.$t_score.'</span></h1>
+                        <h1 class="d-flex align-items-center justify-content-center text-center" style="margin-top:10px;margin-bottom:10px;"><img src="assets/img/icons/'.$ct_name.'.png" style="margin-right:8px;" height=38px width=38px><span style="color:#5b768d;">'.$ct_score.'</span>:<span style="color:#ac9b66;">'.$t_score.'</span><img src="assets/img/icons/'.$t_name.'.png" style="margin-left:8px;" height=38px width=38px></h1>
                     </div>
                 </div>
                 <div class="row">
