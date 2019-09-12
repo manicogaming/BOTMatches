@@ -59,9 +59,9 @@ if (isset($_GET["id"])) {
                 } else {
                     $kdr = 0;
                 }
-					if ($row["team"] == 2) {
-						$t_score = $row["team_2"];
-						$t_name = $row["team_2_name"];
+					if ($row["team"] == 3) {
+						$t_score = $row["team_3"];
+						$t_name = $row["team_3_name"];
 						if ($t_name == NULL) {
 							$t_name = "Terrorists";
 						}
@@ -86,9 +86,9 @@ if (isset($_GET["id"])) {
 							<td>'.$ADR_roundup.'</td>
 							<td>'.$rating_roundup.'</td>
 						</tr>';
-					} elseif ($row["team"] == 3) {
-						$ct_score = $row["team_3"];
-						$ct_name = $row["team_3_name"];
+					} elseif ($row["team"] == 2) {
+						$ct_score = $row["team_2"];
+						$ct_name = $row["team_2_name"];
 						if ($ct_name == NULL) {
 							$ct_name = "Counter-Terrorists";
 						}
