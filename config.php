@@ -189,7 +189,7 @@ $maps = array(
     "assets/img/maps/gg_office.jpg" => "gg_office",
     "assets/img/maps/gg_simple_v1.jpg" => "gg_simple_v1",
     "assets/img/maps/ka_rainbow.jpg" => "ka_rainbow",
-    "assets/img/maps/ka_swim_pool.jpg" => "ka_swim_pool"
+    "assets/img/maps/ka_swim_pool.jpg" => "ka_swim_pool",
     "assets/img/maps/kills_ct.jpg" => "kills_ct"
 );
 
