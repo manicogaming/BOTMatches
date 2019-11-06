@@ -70,6 +70,9 @@ if (isset($_GET["page"])) {
                         <h4 class="text-white float-left" style="font-size:70px;margin-top:15px;">'.$row['team_2'].':'.$row['team_3'].'</h4><img class="float-right" src="assets/img/icons/'.$image.'?h=4347d1d6c5595286f4b1acacc902fedd" style="width:110px;"></div>
                 </div>
             </a>';
+			$page = $_SERVER['PHP_SELF'];
+			$sec = "10";
+			header("Refresh: $sec; url=$page");
         }
 		    } else {
         echo '<h1 style="margin-top:20px;text-align:center;">No Results!</h1>';
