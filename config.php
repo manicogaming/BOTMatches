@@ -193,6 +193,7 @@ $maps = array(
     "assets/img/maps/fy_poolparty_v3.jpg" => "fy_poolparty_v3",
     "assets/img/maps/fy_pools.jpg" => "fy_pools",
     "assets/img/maps/fy_rainbow.jpg" => "fy_rainbow",
+    "assets/img/maps/fy_rainyday.jpg" => "fy_rainyday",
     "assets/img/maps/fy_sandstone_t0.jpg" => "fy_sandstone_t0",
     "assets/img/maps/gd_rialto.jpg" => "gd_rialto",
     "assets/img/maps/gg_aim_shotty_csgo.jpg" => "gg_aim_shotty_csgo",
