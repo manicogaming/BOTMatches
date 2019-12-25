@@ -196,6 +196,7 @@ $maps = array(
     "assets/img/maps/fy_rainyday.jpg" => "fy_rainyday",
     "assets/img/maps/fy_rocks.jpg" => "fy_rocks",
     "assets/img/maps/fy_sandstone_t0.jpg" => "fy_sandstone_t0",
+    "assets/img/maps/fy_simpsons_h.jpg" => "fy_simpsons_h",
     "assets/img/maps/gd_rialto.jpg" => "gd_rialto",
     "assets/img/maps/gg_aim_shotty_csgo.jpg" => "gg_aim_shotty_csgo",
     "assets/img/maps/gg_ctm_csgo.jpg" => "gg_ctm_csgo",
