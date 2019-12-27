@@ -202,6 +202,7 @@ $maps = array(
 	"assets/img/maps/genx_brickworld3.jpg" => "genx_brickworld3",
     "assets/img/maps/gg_aim_shotty_csgo.jpg" => "gg_aim_shotty_csgo",
     "assets/img/maps/gg_arena_brazil.jpg" => "gg_arena_brazil",
+    "assets/img/maps/gg_bastion_advanced.jpg" => "gg_bastion_advanced",
     "assets/img/maps/gg_ctm_csgo.jpg" => "gg_ctm_csgo",
     "assets/img/maps/gg_fy_funtimes.jpg" => "gg_fy_funtimes",
     "assets/img/maps/gg_neonlight.jpg" => "gg_neonlight",
