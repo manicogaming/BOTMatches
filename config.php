@@ -234,9 +234,13 @@ $maps = array(
     "assets/img/maps/iv_de_dustworld.jpg" => "iv_de_dustworld",
     "assets/img/maps/iv_de_stoneworld.jpg" => "iv_de_stoneworld",
     "assets/img/maps/joey_twosided.jpg" => "joey_twosided",
+    "assets/img/maps/ka_beams_s.jpg" => "ka_beams_s",
     "assets/img/maps/ka_rainbow.jpg" => "ka_rainbow",
     "assets/img/maps/ka_swim_pool.jpg" => "ka_swim_pool",
+    "assets/img/maps/ka_tanks.jpg" => "ka_tanks",
     "assets/img/maps/kills_ct.jpg" => "kills_ct"
+    "assets/img/maps/knas_bunker_css.jpg" => "knas_bunker_css"
+    "assets/img/maps/knas_speedcastle_css.jpg" => "knas_speedcastle_css"
 );
 
 $conn = new mysqli($servername, $username, $password, $dbname);
