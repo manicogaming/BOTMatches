@@ -238,11 +238,11 @@ $maps = array(
     "assets/img/maps/ka_rainbow.jpg" => "ka_rainbow",
     "assets/img/maps/ka_swim_pool.jpg" => "ka_swim_pool",
     "assets/img/maps/ka_tanks.jpg" => "ka_tanks",
-    "assets/img/maps/kills_ct.jpg" => "kills_ct"
-    "assets/img/maps/knas_bunker_css.jpg" => "knas_bunker_css"
-    "assets/img/maps/knas_speedcastle_css.jpg" => "knas_speedcastle_css"
-    "assets/img/maps/knife_fight_v1.jpg" => "knife_fight_v1"
-    "assets/img/maps/m_maze.jpg" => "m_maze"
+    "assets/img/maps/kills_ct.jpg" => "kills_ct",
+    "assets/img/maps/knas_bunker_css.jpg" => "knas_bunker_css",
+    "assets/img/maps/knas_speedcastle_css.jpg" => "knas_speedcastle_css",
+    "assets/img/maps/knife_fight_v1.jpg" => "knife_fight_v1",
+    "assets/img/maps/m_maze.jpg" => "m_maze",
     "assets/img/maps/mcdonalds-mds.jpg" => "mcdonalds-mds"
 );
 
