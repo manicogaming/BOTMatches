@@ -250,7 +250,8 @@ $maps = array(
     "assets/img/maps/mx_tree_b1.jpg" => "mx_tree_b1",
     "assets/img/maps/nyaarena.jpg" => "nyaarena",
     "assets/img/maps/oa_sentinel1.jpg" => "oa_sentinel1",
-    "assets/img/maps/obe_jungle.jpg" => "obe_jungle"
+    "assets/img/maps/obe_jungle.jpg" => "obe_jungle",
+    "assets/img/maps/pet_sematary_final.jpg" => "pet_sematary_final"
 );
 
 $conn = new mysqli($servername, $username, $password, $dbname);
