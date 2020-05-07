@@ -251,7 +251,12 @@ $maps = array(
     "assets/img/maps/nyaarena.jpg" => "nyaarena",
     "assets/img/maps/oa_sentinel1.jpg" => "oa_sentinel1",
     "assets/img/maps/obe_jungle.jpg" => "obe_jungle",
-    "assets/img/maps/pet_sematary_final.jpg" => "pet_sematary_final"
+    "assets/img/maps/pet_sematary_final.jpg" => "pet_sematary_final",
+    "assets/img/maps/playground_x_s.jpg" => "playground_x_s",
+    "assets/img/maps/rox_dust_tower.jpg" => "rox_dust_tower",
+    "assets/img/maps/scoutzknivez.jpg" => "scoutzknivez",
+    "assets/img/maps/sj_dustland.jpg" => "sj_dustland",
+    "assets/img/maps/spectrum.jpg" => "spectrum"
 );
 
 $conn = new mysqli($servername, $username, $password, $dbname);
