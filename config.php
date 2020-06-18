@@ -198,6 +198,7 @@ $maps = array(
 	"assets/img/maps/de_studio.jpg" => "de_studio",
 	"assets/img/maps/de_sugarcane.jpg" => "de_sugarcane",
     "assets/img/maps/de_train.jpg" => "de_train",
+    "assets/img/maps/de_vacant.jpg" => "de_vacant",
     "assets/img/maps/de_vertigo.jpg" => "de_vertigo",
     "assets/img/maps/de_zoo.jpg" => "de_zoo",
     "assets/img/maps/deathzone.jpg" => "deathzone",
