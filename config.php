@@ -193,6 +193,7 @@ $maps = array(
 	"assets/img/maps/de_shortdust.jpg" => "de_shortdust",
 	"assets/img/maps/de_shortnuke.jpg" => "de_shortnuke",
 	"assets/img/maps/de_skyscraper.jpg" => "de_skyscraper",
+	"assets/img/maps/de_snowcapped_csgo.jpg" => "de_snowcapped_csgo",
 	"assets/img/maps/de_spain.jpg" => "de_spain",
 	"assets/img/maps/de_stmarc.jpg" => "de_stmarc",
 	"assets/img/maps/de_studio.jpg" => "de_studio",
