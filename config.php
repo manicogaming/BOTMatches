@@ -188,6 +188,7 @@ $maps = array(
 	"assets/img/maps/de_overpass.jpg" => "de_overpass",
 	"assets/img/maps/de_parthenon_royal.jpg" => "de_parthenon_royal",
 	"assets/img/maps/de_ruby.jpg" => "de_ruby",
+	"assets/img/maps/de_russka_b2.jpg" => "de_russka_b2",
 	"assets/img/maps/de_safehouse.jpg" => "de_safehouse",
 	"assets/img/maps/de_seaside.jpg" => "de_seaside",
 	"assets/img/maps/de_shortdust.jpg" => "de_shortdust",
