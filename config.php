@@ -173,6 +173,7 @@ $maps = array(
     "assets/img/maps/de_gold_dust2.jpg" => "de_gold_dust2",
     "assets/img/maps/de_icehouse.jpg" => "de_icehouse",
     "assets/img/maps/de_icewerk_csgo.jpg" => "de_icewerk_csgo",
+    "assets/img/maps/de_industrial_estate.jpg" => "de_industrial_estate",
     "assets/img/maps/de_inferno.jpg" => "de_inferno",
     "assets/img/maps/de_inferno_pondsite.jpg" => "de_inferno_pondsite",
     "assets/img/maps/de_infernoold.jpg" => "de_infernoold",
