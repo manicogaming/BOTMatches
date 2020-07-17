@@ -74,6 +74,7 @@ $maps = array(
     "assets/img/maps/aim_neon_handel.jpg" => "aim_neon_handel",
     "assets/img/maps/aim_notsocrazyjump.jpg" => "aim_notsocrazyjump",
     "assets/img/maps/aim_perfect2.jpg" => "aim_perfect2",
+    "assets/img/maps/aim_poolparty_crashz.jpg" => "aim_poolparty_crashz",
     "assets/img/maps/aim_pro.jpg" => "aim_pro",
     "assets/img/maps/aim_redline.jpg" => "aim_redline",
     "assets/img/maps/aim_scopearena.jpg" => "aim_scopearena",
