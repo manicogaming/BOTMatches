@@ -162,6 +162,7 @@ $maps = array(
     "assets/img/maps/cs_assault_source.jpg" => "cs_assault_source",
     "assets/img/maps/cs_backalley.jpg" => "cs_backalley",
     "assets/img/maps/cs_beachassault_ek.jpg" => "cs_beachassault_ek",
+    "assets/img/maps/cs_bird.jpg" => "cs_bird",
     "assets/img/maps/cs_bloodstrike_2017.jpg" => "cs_bloodstrike_2017",
     "assets/img/maps/cs_bloodstrike_old.jpg" => "cs_bloodstrike_old",
     "assets/img/maps/cs_brickhouse.jpg" => "cs_brickhouse",
