@@ -205,6 +205,7 @@ $maps = array(
     "assets/img/maps/de_biome.jpg" => "de_biome",
     "assets/img/maps/de_bombspot_bitcoin.jpg" => "de_bombspot_bitcoin",
     "assets/img/maps/de_boohouse_go.jpg" => "de_boohouse_go",
+    "assets/img/maps/de_bourg.jpg" => "de_bourg",
     "assets/img/maps/de_breach.jpg" => "de_breach",
     "assets/img/maps/de_cache.jpg" => "de_cache",
     "assets/img/maps/de_canals.jpg" => "de_canals",
