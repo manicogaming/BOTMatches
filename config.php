@@ -167,6 +167,7 @@ $maps = array(
     "assets/img/maps/cs_bloodstrike_old.jpg" => "cs_bloodstrike_old",
     "assets/img/maps/cs_brickhouse.jpg" => "cs_brickhouse",
     "assets/img/maps/cs_camouflage_csgo.jpg" => "cs_camouflage_csgo",
+    "assets/img/maps/cs_cappa.jpg" => "cs_cappa",
     "assets/img/maps/cs_cock.jpg" => "cs_cock",
     "assets/img/maps/cs_coldwar.jpg" => "cs_coldwar",
     "assets/img/maps/cs_deadhouse.jpg" => "cs_deadhouse",
