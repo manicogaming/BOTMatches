@@ -223,6 +223,7 @@ $maps = array(
     "assets/img/maps/de_chinatown.jpg" => "de_chinatown",
     "assets/img/maps/de_chlore.jpg" => "de_chlore",
     "assets/img/maps/de_chlorine.jpg" => "de_chlorine",
+    "assets/img/maps/de_cluj.jpg" => "de_cluj",
     "assets/img/maps/de_contra_b3.jpg" => "de_contra_b3",
     "assets/img/maps/de_courtyard_source.jpg" => "de_courtyard_source",
     "assets/img/maps/de_cpt.jpg" => "de_cpt",
