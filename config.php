@@ -270,6 +270,7 @@ $maps = array(
     "assets/img/maps/de_graveyard.jpg" => "de_graveyard",
     "assets/img/maps/de_grind.jpg" => "de_grind",
     "assets/img/maps/de_grit.jpg" => "de_grit",
+    "assets/img/maps/de_grotto.jpg" => "de_grotto",
     "assets/img/maps/de_icehouse.jpg" => "de_icehouse",
     "assets/img/maps/de_icewerk_csgo.jpg" => "de_icewerk_csgo",
     "assets/img/maps/de_industrial_estate.jpg" => "de_industrial_estate",
