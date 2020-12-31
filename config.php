@@ -310,6 +310,7 @@ $maps = array(
     "assets/img/maps/de_kabul_b3.jpg" => "de_kabul_b3",
     "assets/img/maps/de_lake.jpg" => "de_lake",
     "assets/img/maps/de_livehouse.jpg" => "de_livehouse",
+    "assets/img/maps/de_log.jpg" => "de_log",
     "assets/img/maps/de_lumber.jpg" => "de_lumber",
     "assets/img/maps/de_maihouse.jpg" => "de_maihouse",
     "assets/img/maps/de_maya.jpg" => "de_maya",
