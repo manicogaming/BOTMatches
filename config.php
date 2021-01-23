@@ -376,6 +376,7 @@ $maps = array(
     "assets/img/maps/deathzone.jpg" => "deathzone",
     "assets/img/maps/dm_bloodsport.jpg" => "dm_bloodsport",
     "assets/img/maps/dm_jolly.jpg" => "dm_jolly",
+    "assets/img/maps/dm_lair.jpg" => "dm_lair",
     "assets/img/maps/dz_blacksite.jpg" => "dz_blacksite",
 	"assets/img/maps/dz_junglety.jpg" => "dz_junglety",
     "assets/img/maps/dz_sirocco.jpg" => "dz_sirocco",
