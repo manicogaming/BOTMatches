@@ -312,6 +312,7 @@ $maps = array(
     "assets/img/maps/de_kaizen_rc1.jpg" => "de_kaizen_rc1",
     "assets/img/maps/de_kowloon.jpg" => "de_kowloon",
     "assets/img/maps/de_lake.jpg" => "de_lake",
+    "assets/img/maps/de_legacy.jpg" => "de_legacy",
     "assets/img/maps/de_livehouse.jpg" => "de_livehouse",
     "assets/img/maps/de_log.jpg" => "de_log",
     "assets/img/maps/de_lumber.jpg" => "de_lumber",
