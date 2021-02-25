@@ -9,7 +9,7 @@ if(isset($_GET["id"])){
 
 settype($id, "integer"); 
 
-$sql = "SELECT sql_players.id, sql_matches.name, SUM(sql_matches.kills) AS totalkills, SUM(sql_matches.deaths) AS totaldeaths, SUM(sql_matches.5k) AS total5k, SUM(sql_matches.4k) AS total4k, SUM(sql_matches.3k) AS total3k, SUM(sql_matches.damage) AS totaldamage
+$sql = "SELECT sql_players.id, sql_matches.name, SUM(sql_matches.kills) AS totalkills, SUM(sql_matches.assists) AS totalassists, SUM(sql_matches.deaths) AS totaldeaths, SUM(sql_matches.5k) AS total5k, SUM(sql_matches.4k) AS total4k, SUM(sql_matches.3k) AS total3k, SUM(sql_matches.damage) AS totaldamage, SUM(sql_matches.kastrounds) AS totalkastrounds
         FROM sql_matches INNER JOIN sql_players
         ON sql_players.name LIKE sql_matches.name
         WHERE sql_players.id = ".$id."";
@@ -46,9 +46,15 @@ include ('head.php');
     if($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $rowround = $roundresult->fetch_assoc();
-		$AVERAGE_KPR = 0.679;
-		$AVERAGE_SPR = 0.317;
-		$AVERAGE_RMK = 1.277;
+		$HLTV2_KAST_MOD = 0.0073; // KAST modifier
+		$HLTV2_KPR_MOD = 0.3591; // KPR modifier
+		$HLTV2_DPR_MOD = -0.5329; // DPR modifier
+		$HLTV2_IMPACT_MOD = 0.2372; // Impact modifier
+		$HLTV2_IMPACT_KPR_MOD = 2.13; //Impact KPR modifier
+		$HLTV2_IMPACT_APR_MOD = 0.42; //Impact AssistPerRound modifier
+		$HLTV2_IMPACT_OFFSET_MOD = -0.41; //Impact base modifier
+		$HLTV2_ADR_MOD = 0.0032; // ADR modifier
+		$HLTV2_OFFSET_MOD = 0.1587; // HLTV2 base modifier
 		$rounds = ($rowround["team_2_total"] + $rowround["team_3_total"]);
 		
         echo '<div style="width:100%;margin-right:auto;margin-left:auto;background-color:#282828;margin-top:25px;">
@@ -70,26 +76,31 @@ include ('head.php');
                             $kdr_roundup = $row["totalkills"];
 
                         }
-						$killRating = $row["totalkills"] / $rounds / $AVERAGE_KPR;
 						
-						$survivalRating = ($rounds - $row["totaldeaths"]) / $rounds / $AVERAGE_SPR;
+						$KAST = $HLTV2_KAST_MOD * ($row["totalkastrounds"] / $rounds) * 100.0;
 						
-						$rounds1k = $rounds - ($row["total3k"] + $row["total4k"] + $row["total5k"]);
-						$roundsWithMultipleKillsRating = ($rounds1k + 4 * 0 + 9 * $row["total3k"] + 16 * $row["total4k"] + 25 * $row["total5k"]) / $rounds / $AVERAGE_RMK;
+						$KPR = $HLTV2_KPR_MOD * $row["totalkills"] / $rounds;
 						
-						$rating = ($killRating + 0.7 * $survivalRating + $roundsWithMultipleKillsRating) / 2.7;
-						$rating_roundup = round($rating,2); 
+						$DPR = $HLTV2_DPR_MOD * $row["totaldeaths"] / $rounds;
+						
+						$ADR = $HLTV2_ADR_MOD * $row["totaldamage"] / $rounds;
+						
+						$Impact = $HLTV2_IMPACT_MOD * (($HLTV2_IMPACT_KPR_MOD * ($row["totalkills"] / $rounds)) + ($HLTV2_IMPACT_APR_MOD * ($row["totalassists"] / $rounds)) + $HLTV2_IMPACT_OFFSET_MOD);
+						
+						$HLTV2 = $KAST + $KPR + $DPR + $Impact + $ADR + $HLTV2_OFFSET_MOD;
+						
+						$HLTV2_roundup = round($HLTV2,2); 
 						
 						$ADR = $row["totaldamage"]/ $rounds;
 						$ADR_roundup = round($ADR,0);
 						
-						if($rating_roundup > 1)
+						if($HLTV2_roundup > 1)
 						{
-							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:green;margin-top:10px;"><span style="color:white;">Average Rating: </span>'.$rating_roundup;
+							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:green;margin-top:10px;"><span style="color:white;">Average Rating: </span>'.$HLTV2_roundup;
 						}
 						else
 						{
-							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:red;margin-top:10px;"><span style="color:white;">Average Rating: </span>'.$rating_roundup;
+							echo '<li class="list-group-item font-weight-bold text-center mt-2" style="color:red;margin-top:10px;"><span style="color:white;">Average Rating: </span>'.$HLTV2_roundup;
 						}
 						
 						echo '</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total Kills: </strong>'.$row["totalkills"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total Deaths: </strong>'.$row["totaldeaths"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Average KDR: </strong>'.$kdr_roundup.'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Average ADR: </strong>'.$ADR_roundup.'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 5Ks: </strong>'.$row["total5k"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 4Ks: </strong>'.$row["total4k"].'</li><li class="list-group-item text-center" style="margin-top:10px;"><strong>Total 3Ks: </strong>'.$row["total3k"].'</li>';

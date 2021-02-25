@@ -56,15 +56,47 @@ if (isset($_GET["page"])) {
 
     if($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
+			$rounds = ($row["team_2"] + $row["team_3"]);
+			$switchteams = false;
+			
+			if ($row["team_2"] > $row["team_3"] && $rounds > 30)
+			{
+				if($row["team_2"] % 2 != 0)
+				{
+					$switchteams = true;
+				}
+			}
+			elseif($row["team_3"] > $row["team_2"] && $rounds > 30)
+			{
+				if($row["team_3"] % 2 != 0)
+				{
+					$switchteams = true;
+				}
+			}
+			
             $half = ($row["team_2"] + $row["team_3"]) / 2;
             
-            if ($row["team_3"] > $half) {
-                $image = $row["team_3_name"];
-            } elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
-                $image = 'tie_icon.png';
-            } else {
+			if($switchteams)
+			{
+				if ($row["team_3"] > $half) {
                 $image = $row["team_2_name"];
-            }
+				} elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
+					$image = 'tie_icon.png';
+				} else {
+					$image = $row["team_3_name"];
+				}
+			}
+			else
+			{
+				if ($row["team_3"] > $half) {
+                $image = $row["team_3_name"];
+				} elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
+					$image = 'tie_icon.png';
+				} else {
+					$image = $row["team_2_name"];
+				}
+			}
+           
             $map_img = array_search($row["map"], $maps);
             echo '        
             <a href="scoreboard.php?id='.$row["match_id"].'">

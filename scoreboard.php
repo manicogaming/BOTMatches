@@ -38,7 +38,7 @@ if (isset($_GET["id"])) {
         }
 		
         $match_id = $conn->real_escape_string($match_id);
-		$sql = "SELECT sql_players.id, sql_matches.match_id, sql_matches_scoretotal.timestamp, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name, sql_matches.name, sql_matches.kills, sql_matches.deaths, sql_matches.team, sql_matches.5k, sql_matches.4k, sql_matches.3k, sql_matches.damage
+		$sql = "SELECT sql_players.id, sql_matches.match_id, sql_matches_scoretotal.timestamp, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name, sql_matches.name, sql_matches.kills, sql_matches.assists, sql_matches.deaths, sql_matches.team, sql_matches.5k, sql_matches.4k, sql_matches.3k, sql_matches.damage, sql_matches.kastrounds
         FROM sql_matches_scoretotal INNER JOIN sql_matches INNER JOIN sql_players
         ON sql_matches_scoretotal.match_id = sql_matches.match_id AND sql_players.name LIKE sql_matches.name
         WHERE sql_matches_scoretotal.match_id = ".$match_id." ORDER BY sql_matches.kills DESC";     
@@ -48,32 +48,71 @@ if (isset($_GET["id"])) {
 		if ($result->num_rows > 0) {
             $t = '';
             $ct = '';
-			$AVERAGE_KPR = 0.679;
-			$AVERAGE_SPR = 0.317;
-			$AVERAGE_RMK = 1.277;
+			$HLTV2_KAST_MOD = 0.0073; // KAST modifier
+			$HLTV2_KPR_MOD = 0.3591; // KPR modifier
+			$HLTV2_DPR_MOD = -0.5329; // DPR modifier
+			$HLTV2_IMPACT_MOD = 0.2372; // Impact modifier
+			$HLTV2_IMPACT_KPR_MOD = 2.13; //Impact KPR modifier
+			$HLTV2_IMPACT_APR_MOD = 0.42; //Impact AssistPerRound modifier
+			$HLTV2_IMPACT_OFFSET_MOD = -0.41; //Impact base modifier
+			$HLTV2_ADR_MOD = 0.0032; // ADR modifier
+			$HLTV2_OFFSET_MOD = 0.1587; // HLTV2 base modifier
 			
             while ($row = $result->fetch_assoc()) {
 				$rounds = ($row["team_2"] + $row["team_3"]);
+				$switchteams = false;
+				
+				if ($row["team_2"] > $row["team_3"] && $rounds > 30)
+				{
+					if($row["team_2"] % 2 != 0)
+					{
+						$switchteams = true;
+					}
+				}
+				elseif($row["team_3"] > $row["team_2"] && $rounds > 30)
+				{
+					if($row["team_3"] % 2 != 0)
+					{
+						$switchteams = true;
+					}
+				}
+				
                 if ($row["kills"] > 0 && $row["deaths"] > 0) {
                     $kdr = round(($row["kills"] / $row["deaths"]), 2); 
                 } else {
                     $kdr = 0;
                 }
 					if ($row["team"] == 3) {
-						$t_score = $row["team_3"];
-						$t_name = $row["team_3_name"];
-						if ($t_name == NULL) {
-							$t_name = "Terrorists";
+						if($switchteams)
+						{
+							$t_name = $row["team_2_name"];
+							if ($t_name == NULL) {
+								$t_name = "Counter-Terrorists";
+							}
 						}
-						$killRating = $row["kills"] / $rounds / $AVERAGE_KPR;
-							
-						$survivalRating = ($rounds - $row["deaths"]) / $rounds / $AVERAGE_SPR;
+						else
+						{
+							$t_name = $row["team_3_name"];
+							if ($t_name == NULL) {
+								$t_name = "Terrorists";
+							}	
+						}
 						
-						$rounds1k = $rounds - ($row["3k"] + $row["4k"] + $row["5k"]);
-						$roundsWithMultipleKillsRating = ($rounds1k + 4 * 0 + 9 * $row["3k"] + 16 * $row["4k"] + 25 * $row["5k"]) / $rounds / $AVERAGE_RMK;
+						$t_score = $row["team_3"];
 						
-						$rating = ($killRating + 0.7 * $survivalRating + $roundsWithMultipleKillsRating) / 2.7;
-						$rating_roundup = round($rating,2); 
+						$KAST = $HLTV2_KAST_MOD * ($row["kastrounds"] / $rounds) * 100.0;
+						
+						$KPR = $HLTV2_KPR_MOD * $row["kills"] / $rounds;
+						
+						$DPR = $HLTV2_DPR_MOD * $row["deaths"] / $rounds;
+						
+						$ADR = $HLTV2_ADR_MOD * $row["damage"] / $rounds;
+						
+						$Impact = $HLTV2_IMPACT_MOD * (($HLTV2_IMPACT_KPR_MOD * ($row["kills"] / $rounds)) + ($HLTV2_IMPACT_APR_MOD * ($row["assists"] / $rounds)) + $HLTV2_IMPACT_OFFSET_MOD);
+						
+						$HLTV2 = $KAST + $KPR + $DPR + $Impact + $ADR + $HLTV2_OFFSET_MOD;
+						
+						$HLTV2_roundup = round($HLTV2,2); 
 						
 						$ADR = $row["damage"]/ $rounds;
 						$ADR_roundup = round($ADR,0);
@@ -84,23 +123,39 @@ if (isset($_GET["id"])) {
 							<td>'.$row["deaths"].'</td>
 							<td>'.$kdr.'</td>
 							<td>'.$ADR_roundup.'</td>
-							<td>'.$rating_roundup.'</td>
+							<td>'.$HLTV2_roundup.'</td>
 						</tr>';
 					} elseif ($row["team"] == 2) {
-						$ct_score = $row["team_2"];
-						$ct_name = $row["team_2_name"];
-						if ($ct_name == NULL) {
-							$ct_name = "Counter-Terrorists";
+						if($switchteams)
+						{
+							$ct_name = $row["team_3_name"];
+							if ($ct_name == NULL) {
+								$ct_name = "Terrorists";
+							}
 						}
-						$killRating = $row["kills"] / $rounds / $AVERAGE_KPR;
-							
-						$survivalRating = ($rounds - $row["deaths"]) / $rounds / $AVERAGE_SPR;
+						else
+						{
+							$ct_name = $row["team_2_name"];
+							if ($ct_name == NULL) {
+								$ct_name = "Counter-Terrorists";
+							}
+						}
 						
-						$rounds1k = $rounds - ($row["3k"] + $row["4k"] + $row["5k"]);
-						$roundsWithMultipleKillsRating = ($rounds1k + 4 * 0 + 9 * $row["3k"] + 16 * $row["4k"] + 25 * $row["5k"]) / $rounds / $AVERAGE_RMK;
+						$ct_score = $row["team_2"];
 						
-						$rating = ($killRating + 0.7 * $survivalRating + $roundsWithMultipleKillsRating) / 2.7;
-						$rating_roundup = round($rating,2); 
+						$KAST = $HLTV2_KAST_MOD * ($row["kastrounds"] / $rounds) * 100.0;
+						
+						$KPR = $HLTV2_KPR_MOD * $row["kills"] / $rounds;
+						
+						$DPR = $HLTV2_DPR_MOD * $row["deaths"] / $rounds;
+						
+						$ADR = $HLTV2_ADR_MOD * $row["damage"] / $rounds;
+						
+						$Impact = $HLTV2_IMPACT_MOD * (($HLTV2_IMPACT_KPR_MOD * ($row["kills"] / $rounds)) + ($HLTV2_IMPACT_APR_MOD * ($row["assists"] / $rounds)) + $HLTV2_IMPACT_OFFSET_MOD);
+						
+						$HLTV2 = $KAST + $KPR + $DPR + $Impact + $ADR + $HLTV2_OFFSET_MOD;
+						
+						$HLTV2_roundup = round($HLTV2,2); 
 						
 						$ADR = $row["damage"]/ $rounds;
 						$ADR_roundup = round($ADR,0);
@@ -111,7 +166,7 @@ if (isset($_GET["id"])) {
 							<td>'.$row["deaths"].'</td>
 							<td>'.$kdr.'</td>
 							<td>'.$ADR_roundup.'</td>
-							<td>'.$rating_roundup.'</td>
+							<td>'.$HLTV2_roundup.'</td>
 						</tr>';
 					}
                 }
