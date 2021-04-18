@@ -140,6 +140,7 @@ $maps = array(
     "assets/img/maps/awp_minecraft.jpg" => "awp_minecraft",
     "assets/img/maps/awp_minecraft_pete_v1.jpg" => "awp_minecraft_pete_v1",
     "assets/img/maps/awp_newmap_beta.jpg" => "awp_newmap_beta",
+    "assets/img/maps/awp_old_civ.jpg" => "awp_old_civ",
     "assets/img/maps/awp_paradise.jpg" => "awp_paradise",
     "assets/img/maps/awp_pro.jpg" => "awp_pro",
     "assets/img/maps/awp_rainbow.jpg" => "awp_rainbow",
