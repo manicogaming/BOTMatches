@@ -189,6 +189,7 @@ $maps = array(
     "assets/img/maps/cs_hideout.jpg" => "cs_hideout",
     "assets/img/maps/cs_hijack.jpg" => "cs_hijack",
     "assets/img/maps/cs_hostage_taking.jpg" => "cs_hostage_taking",
+    "assets/img/maps/cs_insertion2.jpg" => "cs_insertion2",
     "assets/img/maps/cs_isku.jpg" => "cs_isku",
     "assets/img/maps/cs_italy.jpg" => "cs_italy",
     "assets/img/maps/cs_italy_d.jpg" => "cs_italy_d",
