@@ -155,6 +155,7 @@ $maps = array(
     "assets/img/maps/awp_zeecore.jpg" => "awp_zeecore",
     "assets/img/maps/awpmap.jpg" => "awpmap",
     "assets/img/maps/ba_winterforest_b1.jpg" => "ba_winterforest_b1",
+    "assets/img/maps/bgt_vegas.jpg" => "bgt_vegas",
     "assets/img/maps/blood_gulch.jpg" => "blood_gulch",
     "assets/img/maps/breakfloor_2.jpg" => "breakfloor_2",
     "assets/img/maps/c19_tilante.jpg" => "c19_tilante",
