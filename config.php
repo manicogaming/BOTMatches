@@ -216,6 +216,7 @@ $maps = array(
     "assets/img/maps/de_aldebaran.jpg" => "de_aldebaran",
     "assets/img/maps/de_alexandra.jpg" => "de_alexandra",
     "assets/img/maps/de_ali.jpg" => "de_ali",
+    "assets/img/maps/de_alivemetal_go.jpg" => "de_alivemetal_go",
     "assets/img/maps/de_amalia.jpg" => "de_amalia",
     "assets/img/maps/de_ancient.jpg" => "de_ancient",
     "assets/img/maps/de_anubis.jpg" => "de_anubis",
