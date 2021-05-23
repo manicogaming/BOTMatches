@@ -295,6 +295,7 @@ $maps = array(
     "assets/img/maps/de_facade.jpg" => "de_facade",
     "assets/img/maps/de_fallgarden_9.jpg" => "de_fallgarden_9",
     "assets/img/maps/de_favela.jpg" => "de_favela",
+    "assets/img/maps/de_fedra_autumn_csgo.jpg" => "de_fedra_autumn_csgo",
     "assets/img/maps/de_fire.jpg" => "de_fire",
     "assets/img/maps/de_forlorn.jpg" => "de_forlorn",
     "assets/img/maps/de_fortress.jpg" => "de_fortress",
