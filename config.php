@@ -402,6 +402,7 @@ $maps = array(
     "assets/img/maps/de_vertigo.jpg" => "de_vertigo",
     "assets/img/maps/de_waterfall.jpg" => "de_waterfall",
     "assets/img/maps/de_westwood.jpg" => "de_westwood",
+    "assets/img/maps/de_winter_village_go.jpg" => "de_winter_village_go",
     "assets/img/maps/de_xmas_hotel.jpg" => "de_xmas_hotel",
     "assets/img/maps/de_zen.jpg" => "de_zen",
     "assets/img/maps/de_zoo.jpg" => "de_zoo",
