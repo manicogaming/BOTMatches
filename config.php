@@ -366,6 +366,7 @@ $maps = array(
     "assets/img/maps/de_overgrown.jpg" => "de_overgrown",
 	"assets/img/maps/de_overpass.jpg" => "de_overpass",
 	"assets/img/maps/de_parthenon_royal.jpg" => "de_parthenon_royal",
+	"assets/img/maps/de_pit.jpg" => "de_pit",
 	"assets/img/maps/de_pitstop.jpg" => "de_pitstop",
 	"assets/img/maps/de_portugal_rc1.jpg" => "de_portugal_rc1",
 	"assets/img/maps/de_pripyat.jpg" => "de_pripyat",
