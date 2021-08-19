@@ -71,6 +71,7 @@ $maps = array(
     "assets/img/maps/aim_depot_beta01.jpg" => "aim_depot_beta01",
     "assets/img/maps/aim_dust.jpg" => "aim_dust",
     "assets/img/maps/aim_glass_handel_v2_fix.jpg" => "aim_glass_handel_v2_fix",
+	"assets/img/maps/aim_headshot_imb.jpg" => "aim_headshot_imb",
     "assets/img/maps/aim_headshot2_csgo.jpg" => "aim_headshot2_csgo",
     "assets/img/maps/aim_junkyard.jpg" => "aim_junkyard",
     "assets/img/maps/aim_legion.jpg" => "aim_legion",
