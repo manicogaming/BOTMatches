@@ -119,6 +119,7 @@ $maps = array(
     "assets/img/maps/awp_dust_sky.jpg" => "awp_dust_sky",
     "assets/img/maps/awp_gazebo.jpg" => "awp_gazebo",
     "assets/img/maps/awp_gony_2018.jpg" => "awp_gony_2018",
+    "assets/img/maps/awp_ice.jpg" => "awp_ice",
     "assets/img/maps/awp_ice_csgo.jpg" => "awp_ice_csgo",
     "assets/img/maps/awp_india.jpg" => "awp_india",
     "assets/img/maps/awp_india_csgo.jpg" => "awp_india_csgo",
