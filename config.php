@@ -292,6 +292,7 @@ $maps = array(
     "assets/img/maps/de_dust2.jpg" => "de_dust2",
     "assets/img/maps/de_dust2_2006_accy.jpg" => "de_dust2_2006_accy",
     "assets/img/maps/de_dust2_cso2.jpg" => "de_dust2_cso2",
+    "assets/img/maps/de_dust2_fo.jpg" => "de_dust2_fo",
     "assets/img/maps/de_dust2_night.jpg" => "de_dust2_night",
     "assets/img/maps/de_dust2_old.jpg" => "de_dust2_old",
     "assets/img/maps/de_dust2_original.jpg" => "de_dust2_original",
