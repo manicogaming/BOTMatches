@@ -354,6 +354,7 @@ $maps = array(
     "assets/img/maps/de_log.jpg" => "de_log",
     "assets/img/maps/de_lumber.jpg" => "de_lumber",
     "assets/img/maps/de_lumen.jpg" => "de_lumen",
+    "assets/img/maps/de_luxury_r1.jpg" => "de_luxury_r1",
     "assets/img/maps/de_maihouse.jpg" => "de_maihouse",
     "assets/img/maps/de_manor.jpg" => "de_manor",
     "assets/img/maps/de_marine.jpg" => "de_marine",
