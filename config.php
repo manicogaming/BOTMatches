@@ -207,6 +207,7 @@ $maps = array(
     "assets/img/maps/cs_museum.jpg" => "cs_museum",
     "assets/img/maps/cs_office.jpg" => "cs_office",
     "assets/img/maps/cs_office_d.jpg" => "cs_office_d",
+	"assets/img/maps/cs_office_legacy.jpg" => "cs_office_legacy",
     "assets/img/maps/cs_renovation.jpg" => "cs_renovation",
     "assets/img/maps/cs_siege.jpg" => "cs_siege",
     "assets/img/maps/cs_twilight.jpg" => "cs_twilight",
