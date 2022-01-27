@@ -459,6 +459,7 @@ $maps = array(
     "assets/img/maps/dz_blacksite.jpg" => "dz_blacksite",
 	"assets/img/maps/dz_junglety.jpg" => "dz_junglety",
     "assets/img/maps/dz_sirocco.jpg" => "dz_sirocco",
+    "assets/img/maps/fame.jpg" => "fame",
     "assets/img/maps/fun_pacman_v1.jpg" => "fun_pacman_v1",
     "assets/img/maps/fy_aztec_fire_csgo.jpg" => "fy_aztec_fire_csgo",
     "assets/img/maps/fy_back_street.jpg" => "fy_back_street",
