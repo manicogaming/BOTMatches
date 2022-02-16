@@ -408,6 +408,7 @@ $maps = array(
 	"assets/img/maps/de_rats_1337_v2.jpg" => "de_rats_1337_v2",
 	"assets/img/maps/de_ravine.jpg" => "de_ravine",
 	"assets/img/maps/de_reberth.jpg" => "de_reberth",
+	"assets/img/maps/de_reberth_halloween.jpg" => "de_reberth_halloween",
 	"assets/img/maps/de_region.jpg" => "de_region",
 	"assets/img/maps/de_republic.jpg" => "de_republic",
 	"assets/img/maps/de_resort.jpg" => "de_resort",
