@@ -329,6 +329,7 @@ $maps = array(
     "assets/img/maps/de_forlorn.jpg" => "de_forlorn",
     "assets/img/maps/de_fortress.jpg" => "de_fortress",
     "assets/img/maps/de_garrison.jpg" => "de_garrison",
+    "assets/img/maps/de_gloss_r1.jpg" => "de_gloss_r1",
     "assets/img/maps/de_gold_dust.jpg" => "de_gold_dust",
     "assets/img/maps/de_gold_dust2.jpg" => "de_gold_dust2",
     "assets/img/maps/de_golden.jpg" => "de_golden",
