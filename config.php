@@ -390,6 +390,7 @@ $maps = array(
     "assets/img/maps/de_minimetzel_hslan.jpg" => "de_minimetzel_hslan",
     "assets/img/maps/de_mirage.jpg" => "de_mirage",
 	"assets/img/maps/de_mirage_2055.jpg" => "de_mirage_2055",
+	"assets/img/maps/de_mirage_go.jpg" => "de_mirage_go",
     "assets/img/maps/de_mirage_winter.jpg" => "de_mirage_winter",
     "assets/img/maps/de_mocha.jpg" => "de_mocha",
     "assets/img/maps/de_momentum.jpg" => "de_momentum",
