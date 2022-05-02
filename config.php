@@ -316,6 +316,7 @@ $maps = array(
     "assets/img/maps/de_dust0_csgo.jpg" => "de_dust0_csgo",
     "assets/img/maps/de_dust2.jpg" => "de_dust2",
     "assets/img/maps/de_dust2_2006_accy.jpg" => "de_dust2_2006_accy",
+    "assets/img/maps/de_dust2_2055.jpg" => "de_dust2_2055",
     "assets/img/maps/de_dust2_cso2.jpg" => "de_dust2_cso2",
     "assets/img/maps/de_dust2_fo.jpg" => "de_dust2_fo",
     "assets/img/maps/de_dust2_halloween.jpg" => "de_dust2_halloween",
