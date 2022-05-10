@@ -325,6 +325,7 @@ $maps = array(
     "assets/img/maps/de_dust2_original.jpg" => "de_dust2_original",
     "assets/img/maps/de_dust2_winter_2019.jpg" => "de_dust2_winter_2019",
     "assets/img/maps/de_dust2green.jpg" => "de_dust2green",
+    "assets/img/maps/de_dustec.jpg" => "de_dustec",
     "assets/img/maps/de_dynasty.jpg" => "de_dynasty",
     "assets/img/maps/de_elysion.jpg" => "de_elysion",
     "assets/img/maps/de_empire.jpg" => "de_empire",
