@@ -378,6 +378,7 @@ $maps = array(
     "assets/img/maps/de_kabul_b3.jpg" => "de_kabul_b3",
     "assets/img/maps/de_kaizen_rc1.jpg" => "de_kaizen_rc1",
     "assets/img/maps/de_kharkov_a1.jpg" => "de_kharkov_a1",
+    "assets/img/maps/de_kirov.jpg" => "de_kirov",
     "assets/img/maps/de_kowloon.jpg" => "de_kowloon",
     "assets/img/maps/de_kyrenia.jpg" => "de_kyrenia",
     "assets/img/maps/de_lake.jpg" => "de_lake",
