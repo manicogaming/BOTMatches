@@ -61,45 +61,19 @@ if (isset($_GET["id"])) {
             while ($row = $result->fetch_assoc()) {
 				$rounds = ($row["team_2"] + $row["team_3"]);
 				$map = $row["map"];
-				$switchteams = false;
-				
-				if ($row["team_2"] > $row["team_3"] && $rounds > 30)
-				{
-					if($row["team_2"] % 2 != 0)
-					{
-						$switchteams = true;
-					}
-				}
-				elseif($row["team_3"] > $row["team_2"] && $rounds > 30)
-				{
-					if($row["team_3"] % 2 != 0)
-					{
-						$switchteams = true;
-					}
-				}
 				
                 if ($row["kills"] > 0 && $row["deaths"] > 0) {
                     $kdr = round(($row["kills"] / $row["deaths"]), 2); 
                 } else {
                     $kdr = 0;
                 }
-					if ($row["team"] == 3) {
-						if($switchteams)
-						{
-							$t_name = $row["team_2_name"];
-							if ($t_name == NULL) {
-								$t_name = "Counter-Terrorists";
-							}
-						}
-						else
-						{
-							$t_name = $row["team_3_name"];
-							if ($t_name == NULL) {
-								$t_name = "Terrorists";
-							}	
-						}
+					if ($row["team"] == 2) {
+						$t_name = $row["team_2_name"];
+						if ($t_name == NULL) {
+							$t_name = "Terrorists";
+						}	
 						
-						$t_score = $row["team_3"];
+						$t_score = $row["team_2"];
 						
 						$KAST = $HLTV2_KAST_MOD * ($row["kastrounds"] / $rounds) * 100.0;
 						
@@ -126,23 +100,13 @@ if (isset($_GET["id"])) {
 							<td>'.$ADR_roundup.'</td>
 							<td>'.$HLTV2_roundup.'</td>
 						</tr>';
-					} elseif ($row["team"] == 2) {
-						if($switchteams)
-						{
-							$ct_name = $row["team_3_name"];
-							if ($ct_name == NULL) {
-								$ct_name = "Terrorists";
-							}
-						}
-						else
-						{
-							$ct_name = $row["team_2_name"];
-							if ($ct_name == NULL) {
-								$ct_name = "Counter-Terrorists";
-							}
+					} elseif ($row["team"] == 3) {
+						$ct_name = $row["team_3_name"];
+						if ($ct_name == NULL) {
+							$ct_name = "Counter-Terrorists";
 						}
 						
-						$ct_score = $row["team_2"];
+						$ct_score = $row["team_3"];
 						
 						$KAST = $HLTV2_KAST_MOD * ($row["kastrounds"] / $rounds) * 100.0;
 						

@@ -57,44 +57,14 @@ if (isset($_GET["page"])) {
     if($result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
 			$rounds = ($row["team_2"] + $row["team_3"]);
-			$switchteams = false;
-			
-			if ($row["team_2"] > $row["team_3"] && $rounds > 30)
-			{
-				if($row["team_2"] % 2 != 0)
-				{
-					$switchteams = true;
-				}
-			}
-			elseif($row["team_3"] > $row["team_2"] && $rounds > 30)
-			{
-				if($row["team_3"] % 2 != 0)
-				{
-					$switchteams = true;
-				}
-			}
-			
             $half = ($row["team_2"] + $row["team_3"]) / 2;
-            
-			if($switchteams)
-			{
-				if ($row["team_3"] > $half) {
-                $image = $row["team_2_name"];
-				} elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
-					$image = 'tie_icon.png';
-				} else {
-					$image = $row["team_3_name"];
-				}
-			}
-			else
-			{
-				if ($row["team_3"] > $half) {
-                $image = $row["team_3_name"];
-				} elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
-					$image = 'tie_icon.png';
-				} else {
-					$image = $row["team_2_name"];
-				}
+			
+			if ($row["team_3"] > $half) {
+			$image = $row["team_3_name"];
+			} elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
+				$image = 'tie_icon.png';
+			} else {
+				$image = $row["team_2_name"];
 			}
            
             $map_img = array_search($row["map"], $maps);
@@ -103,7 +73,7 @@ if (isset($_GET["page"])) {
                 <div class="card match-card center" data-bs-hover-animate="pulse" style="margin-top:35px;"><img class="card-img w-100 d-block matches-img rounded-borders" style="background-image:url(&quot;'.$map_img.'&quot;);height:150px;">
                     <div class="card-img-overlay container">
 					<div class="row align-items-center">
-                        <div class="col-sm d-none d-md-block"><h4 class="text-white float-left" style="font-size:70px;margin-bottom:0">'.$row['team_2'].':'.$row['team_3'].'</h4></div><div class="col-12 col-sm text-center"><img class="img-fluid float-sm-right" src="assets/img/icons/'.$image.'?h=4347d1d6c5595286f4b1acacc902fedd" style="max-width:110px;"></div></div>
+                        <div class="col-sm d-none d-md-block"><h4 class="text-white float-left" style="font-size:70px;margin-bottom:0">'.$row['team_3'].':'.$row['team_2'].'</h4></div><div class="col-12 col-sm text-center"><img class="img-fluid float-sm-right" src="assets/img/icons/'.$image.'?h=4347d1d6c5595286f4b1acacc902fedd" style="max-width:110px;"></div></div>
 					</div>
                 </div>
             </a>';
