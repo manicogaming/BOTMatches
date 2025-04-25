@@ -755,6 +755,7 @@ $maps = array(
     "assets/img/maps/togethermap_kamino.jpg" => "togethermap_kamino",
     "assets/img/maps/trenchwarfare.jpg" => "trenchwarfare",
     "assets/img/maps/wm_cabin.jpg" => "wm_cabin",
+    "assets/img/maps/wm_truck.jpg" => "wm_truck",
     "assets/img/maps/ww_skyrail.jpg" => "ww_skyrail",
     "assets/img/maps/xi_rockyaim.jpg" => "xi_rockyaim",
     "assets/img/maps/xmas_nipperhouse.jpg" => "xmas_nipperhouse"
