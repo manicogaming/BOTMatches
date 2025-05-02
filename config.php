@@ -476,6 +476,7 @@ $maps = array(
     "assets/img/maps/de_livehouse.jpg" => "de_livehouse",
     "assets/img/maps/de_lodge.jpg" => "de_lodge",
     "assets/img/maps/de_log.jpg" => "de_log",
+    "assets/img/maps/de_losttemple.jpg" => "de_losttemple",
     "assets/img/maps/de_lumber.jpg" => "de_lumber",
     "assets/img/maps/de_lumen.jpg" => "de_lumen",
     "assets/img/maps/de_lure.jpg" => "de_lure",
