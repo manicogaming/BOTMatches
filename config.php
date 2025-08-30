@@ -636,6 +636,7 @@ $maps = array(
     "assets/img/maps/de_tuscan_fixes_maw2.jpg" => "de_tuscan_fixes_maw2",
     "assets/img/maps/de_vacant.jpg" => "de_vacant",
     "assets/img/maps/de_vandal.jpg" => "de_vandal",
+    "assets/img/maps/de_venezia_4.jpg" => "de_venezia_4",
     "assets/img/maps/de_vertigo.jpg" => "de_vertigo",
     "assets/img/maps/de_vertigo_2051.jpg" => "de_vertigo_2051",
     "assets/img/maps/de_vertigo_port.jpg" => "de_vertigo_port",
