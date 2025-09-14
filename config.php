@@ -155,6 +155,7 @@ $maps = array(
     "assets/img/maps/awp_india_csgo.jpg" => "awp_india_csgo",
     "assets/img/maps/awp_india_legacy.jpg" => "awp_india_legacy",
     "assets/img/maps/awp_india_remake.jpg" => "awp_india_remake",
+    "assets/img/maps/awp_india_soft.jpg" => "awp_india_soft",
     "assets/img/maps/awp_kox_simple_t.jpg" => "awp_kox_simple_t",
     "assets/img/maps/awp_l4f_lego.jpg" => "awp_l4f_lego",
     "assets/img/maps/awp_l4f_puls.jpg" => "awp_l4f_puls",
