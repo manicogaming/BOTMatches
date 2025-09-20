@@ -777,6 +777,7 @@ $maps = array(
     "assets/img/maps/playground_x_s.jpg" => "playground_x_s",
     "assets/img/maps/quarrel.jpg" => "quarrel",
     "assets/img/maps/rox_dust_tower.jpg" => "rox_dust_tower",
+    "assets/img/maps/santorini.jpg" => "santorini",
     "assets/img/maps/school.jpg" => "school",
     "assets/img/maps/scoutzknivez.jpg" => "scoutzknivez",
     "assets/img/maps/shipment.jpg" => "shipment",
