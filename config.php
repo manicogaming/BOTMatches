@@ -267,6 +267,7 @@ $maps = array(
     "assets/img/maps/cs_isku.jpg" => "cs_isku",
     "assets/img/maps/cs_italy.jpg" => "cs_italy",
     "assets/img/maps/cs_italy_16togo.jpg" => "cs_italy_16togo",
+    "assets/img/maps/cs_italy_cso2.jpg" => "cs_italy_cso2",
     "assets/img/maps/cs_italy_d.jpg" => "cs_italy_d",
     "assets/img/maps/cs_ivory.jpg" => "cs_ivory",
     "assets/img/maps/cs_lanpartymayhem.jpg" => "cs_lanpartymayhem",
