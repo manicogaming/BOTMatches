@@ -657,6 +657,7 @@ $maps = array(
     "assets/img/maps/de_trainrework.jpg" => "de_trainrework",
     "assets/img/maps/de_tulip.jpg" => "de_tulip",
     "assets/img/maps/de_tuscan.jpg" => "de_tuscan",
+    "assets/img/maps/de_tuscan_fixes_csgo.jpg" => "de_tuscan_fixes_csgo",
     "assets/img/maps/de_tuscan_fixes_maw2.jpg" => "de_tuscan_fixes_maw2",
     "assets/img/maps/de_tuscany.jpg" => "de_tuscany",
     "assets/img/maps/de_vacant.jpg" => "de_vacant",

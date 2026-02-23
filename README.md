@@ -8,9 +8,10 @@ This version is designed for bot matches and may not work properly with real pla
 
 - **index.php** — Match list with search, pagination, and AJAX auto-update notifications
 - **scoreboard.php** — Match scoreboard with HLTV 2.0 ratings, ADR, KDR, and sortable columns
-- **player.php** — Individual player career stats aggregated across all matches
+- **player.php** — Player profile with career stats, rating chart, career highlights, and tabs for recent matches, maps, teams, and opponents
 - **leaderboard.php** — Player rankings by HLTV 2.0 rating (minimum match threshold, file-cached)
 - **teams.php** — Valve-inspired team rankings with factor breakdown, form, win rate, and rank changes
+- **team.php** — Team profile with roster, VRS ranking context, rating chart, and tabs for recent matches, maps, opponents, and all historical players
 
 ## Team Ranking Model
 
@@ -55,9 +56,8 @@ This prevents rankings from changing while the server is inactive (e.g. WAMP tur
 | `$page_title` / `$site_name` | `BOTMatches` | Site title shown in header and browser tab |
 | `$max_matches` | `25` | Matches per page on index |
 | `$leaderboard_min_matches` | `100` | Minimum matches for a player to appear on the leaderboard |
-| `$leaderboard_cache_seconds` | `300` | Leaderboard cache TTL (seconds) |
-| `$teams_cache_seconds` | `300` | Team rankings cache TTL (seconds) |
 | `$teams_min_matches` | `10` | Minimum matches for a team to appear in rankings |
+| `$bot_rosters_path` | *(game server path)* | Path to bot_rosters.txt (VDF format). Only teams listed here appear in rankings. Leave empty or set to invalid path to show all teams. |
 
 ### Other Files
 
@@ -68,8 +68,8 @@ This prevents rankings from changing while the server is inactive (e.g. WAMP tur
 
 ### Cache Files (auto-generated)
 
-- `cache_leaderboard.json` — Player leaderboard cache. Delete to force recalculation.
-- `cache_teams.json` — Team rankings cache. Delete to force recalculation.
+- `cache_leaderboard.json` — Player leaderboard cache. Automatically rebuilds when a new match is recorded. Delete to force recalculation.
+- `cache_teams.json` — Team rankings cache. Automatically rebuilds when a new match is recorded. Delete to force recalculation.
 
 ## Plugin (sqlmatch.sp)
 

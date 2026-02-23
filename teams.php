@@ -7,31 +7,37 @@ renderPageStart($page_title . " - Team Rankings");
 $cache_file = __DIR__ . '/cache_teams.json';
 $teams = null;
 
-// Serve from cache if fresh enough
-if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $teams_cache_seconds) {
-    $teams = json_decode(file_get_contents($cache_file), true);
+// Parse active rosters from game server
+$activeTeams = parseActiveRosters($bot_rosters_path);
+$rosterHash = !empty($activeTeams) ? md5(implode('|', $activeTeams)) : '';
+
+// Check if cache is still valid (matches latest match_id AND roster hash)
+$latestMatchId = getLatestMatchId($conn);
+if (file_exists($cache_file)) {
+    $cache = json_decode(file_get_contents($cache_file), true);
+    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId
+        && isset($cache['roster_hash']) && $cache['roster_hash'] === $rosterHash) {
+        $teams = $cache['data'];
+    }
 }
 
-// Cache miss or expired — recompute
+// Cache miss, new match, or roster change — recompute
 if ($teams === null) {
-    $teams = computeTeamRankings($conn, $teams_min_matches);
-    file_put_contents($cache_file, json_encode($teams));
+    $teams = computeTeamRankings($conn, $teams_min_matches, $activeTeams);
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'roster_hash' => $rosterHash, 'data' => $teams]));
 }
 
 $conn->close();
 
 if (count($teams) > 0) {
-    $cache_age = file_exists($cache_file) ? time() - filemtime($cache_file) : 0;
-    $cache_remaining = max(0, $teams_cache_seconds - $cache_age);
-    $cache_minutes = ceil($cache_remaining / 60);
     $today = date('j F Y');
 
     echo '
     <div style="margin-top:20px;">
         <div class="card rounded-borders" style="border: none !important;">
             <div class="card-body" style="padding:0;">
-                <div style="background-color:#375a7f; padding: 12px 20px;">
-                    <h3 class="text-uppercase text-center text-white" style="font-size:22px; margin:0;">Team Ranking</h3>
+                <div class="card-header-bar bg-primary" style="padding:12px 20px;">
+                    <h3>Team Ranking</h3>
                     <p class="text-center text-white-50" style="margin:0; font-size:13px;">'.$today.'</p>
                 </div>';
 
@@ -70,7 +76,7 @@ if (count($teams) > 0) {
         $net_pct = $team['network'];
         $con_pct = $team['consistency'];
         $h2h_display = ($team['h2h'] >= 0 ? '+' : '').$team['h2h'];
-        $h2h_color = $team['h2h'] >= 0 ? '#5cb85c' : '#d9534f';
+        $h2h_class = $team['h2h'] >= 0 ? 'rating-good' : 'rating-bad';
 
         $teamId = preg_replace('/[^a-zA-Z0-9]/', '_', $team['name']);
 
@@ -81,7 +87,7 @@ if (count($teams) > 0) {
                         <div style="min-width:30px; text-align:center;">'.$change_html.'</div>
                         <div class="d-flex align-items-center" style="min-width:200px; flex:1;">
                             <img class="team-logo" src="assets/img/icons/'.h($team['name']).'.png" onerror="this.style.display=\'none\'">
-                            <span class="team-name text-white">'.h($team['name']).'</span>
+                            <span class="team-name text-white"><a href="team.php?name='.urlencode($team['name']).'" class="text-white">'.h($team['name']).'</a></span>
                         </div>
                         <div class="text-center" style="min-width:80px;">
                             <span class="team-points text-white">'.$team['points'].'</span><br>
@@ -131,7 +137,7 @@ if (count($teams) > 0) {
                             <div class="col-md-3 col-6 mb-2">
                                 <span class="team-stat-label">H2H Adjustment</span>
                                 <div style="margin-top:5px;">
-                                    <span style="color:'.$h2h_color.'; font-weight:bold;">'.$h2h_display.'</span>
+                                    <span class="'.$h2h_class.'" style="font-weight:bold;">'.$h2h_display.'</span>
                                 </div>
                             </div>
                         </div>
@@ -139,12 +145,19 @@ if (count($teams) > 0) {
                 </div>';
     }
 
+    $rosterNote = !empty($activeTeams)
+        ? 'Filtered to <strong>'.count($activeTeams).'</strong> active rosters from bot_rosters.txt.'
+        : '<span style="color:#f0ad4e;">bot_rosters.txt not found — showing all teams.</span>';
+
     echo '
             </div>
         </div>
     </div>
     <p class="text-center text-muted" style="margin-top:10px;">
-        <small>Minimum '.$teams_min_matches.' matches required. Rank changes vs 7 active days ago. Updates every '.(int)($teams_cache_seconds / 60).' min (next in ~'.$cache_minutes.' min).</small>
+        <small>Minimum '.$teams_min_matches.' matches required. Rank changes vs 7 active days ago. Updates automatically after each match.</small>
+    </p>
+    <p class="text-center text-muted" style="margin-top:2px;">
+        <small>'.$rosterNote.'</small>
     </p>
     <p class="text-center text-muted" style="margin-top:2px;">
         <small>Decay based on <strong>'.$teams[0]['active_days'].' active days</strong> (days with matches played). Full value for '.VRS_FULL_VALUE_ACTIVE_DAYS.' active days, fully decayed after '.VRS_DECAY_ACTIVE_DAYS.'.</small>
@@ -153,7 +166,7 @@ if (count($teams) > 0) {
         <small>Model based on <a href="https://github.com/ValveSoftware/counter-strike_regional_standings" class="text-info" target="_blank">Valve Regional Standings</a> — adapted for bot matches (no prize money/LAN factors).</small>
     </p>';
 } else {
-    echo '<h4 style="margin-top:40px;text-align:center;">No teams with enough matches yet!</h4>';
+    echo '<h4 class="empty-state">No teams with enough matches yet!</h4>';
 }
 ?>
     <script>

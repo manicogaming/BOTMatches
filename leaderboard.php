@@ -7,31 +7,71 @@ renderPageStart($page_title . " - Leaderboard");
 $cache_file = __DIR__ . '/cache_leaderboard.json';
 $players = null;
 
-// Serve from cache if fresh enough
-if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $leaderboard_cache_seconds) {
-    $players = json_decode(file_get_contents($cache_file), true);
+// Parse active roster players for filtering
+$activePlayers = parseActiveRosterPlayers($bot_rosters_path);
+$rosterHash = !empty($activePlayers) ? md5(implode('|', $activePlayers)) : '';
+
+// Check if cache is still valid (matches latest match_id AND roster hash)
+$latestMatchId = getLatestMatchId($conn);
+if (file_exists($cache_file)) {
+    $cache = json_decode(file_get_contents($cache_file), true);
+    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId
+        && isset($cache['roster_hash']) && $cache['roster_hash'] === $rosterHash) {
+        $players = $cache['data'];
+    }
 }
 
-// Cache miss or expired — recompute
+// Cache miss, new match, or roster change — recompute
 if ($players === null) {
-    // Single query: player stats + total rounds in one pass
-    $stmt = $conn->prepare("SELECT 
-            p.id,
-            m.name,
-            SUM(m.kills) AS totalkills,
-            SUM(m.assists) AS totalassists,
-            SUM(m.deaths) AS totaldeaths,
-            SUM(m.damage) AS totaldamage,
-            SUM(m.kastrounds) AS totalkastrounds,
-            COUNT(DISTINCT m.match_id) AS matches,
-            SUM(s.team_2 + s.team_3) AS totalrounds
-        FROM sql_matches m
-        INNER JOIN sql_players p ON p.name = m.name
-        INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
-        GROUP BY p.id, m.name
-        HAVING COUNT(DISTINCT m.match_id) >= ?
-        ORDER BY m.name");
-    $stmt->bind_param("i", $leaderboard_min_matches);
+    if (!empty($activePlayers)) {
+        // Build parameterized IN clause
+        $placeholders = implode(',', array_fill(0, count($activePlayers), '?'));
+        $types = str_repeat('s', count($activePlayers));
+
+        $sql = "SELECT 
+                p.id,
+                m.name,
+                SUM(m.kills) AS totalkills,
+                SUM(m.assists) AS totalassists,
+                SUM(m.deaths) AS totaldeaths,
+                SUM(m.damage) AS totaldamage,
+                SUM(m.kastrounds) AS totalkastrounds,
+                COUNT(DISTINCT m.match_id) AS matches,
+                SUM(s.team_2 + s.team_3) AS totalrounds
+            FROM sql_matches m
+            INNER JOIN sql_players p ON p.name = m.name
+            INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
+            WHERE m.name IN ({$placeholders})
+            GROUP BY p.id, m.name
+            HAVING COUNT(DISTINCT m.match_id) >= ?
+            ORDER BY m.name";
+
+        $stmt = $conn->prepare($sql);
+        $params = $activePlayers;
+        $params[] = $leaderboard_min_matches;
+        $types .= 'i';
+        $stmt->bind_param($types, ...$params);
+    } else {
+        // No roster file — show all players (fallback)
+        $stmt = $conn->prepare("SELECT 
+                p.id,
+                m.name,
+                SUM(m.kills) AS totalkills,
+                SUM(m.assists) AS totalassists,
+                SUM(m.deaths) AS totaldeaths,
+                SUM(m.damage) AS totaldamage,
+                SUM(m.kastrounds) AS totalkastrounds,
+                COUNT(DISTINCT m.match_id) AS matches,
+                SUM(s.team_2 + s.team_3) AS totalrounds
+            FROM sql_matches m
+            INNER JOIN sql_players p ON p.name = m.name
+            INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
+            GROUP BY p.id, m.name
+            HAVING COUNT(DISTINCT m.match_id) >= ?
+            ORDER BY m.name");
+        $stmt->bind_param("i", $leaderboard_min_matches);
+    }
+
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -57,24 +97,20 @@ if ($players === null) {
         return $b['rating'] <=> $a['rating'];
     });
 
-    // Write cache
-    file_put_contents($cache_file, json_encode($players));
+    // Write cache with match_id and roster_hash for invalidation
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'roster_hash' => $rosterHash, 'data' => $players]));
 }
 
 $conn->close();
 
 if (count($players) > 0) {
-    $cache_age = file_exists($cache_file) ? time() - filemtime($cache_file) : 0;
-    $cache_remaining = max(0, $leaderboard_cache_seconds - $cache_age);
-    $cache_minutes = ceil($cache_remaining / 60);
-
     echo '
     <div class="row" style="margin-top:20px;">
         <div class="col-md-12">
             <div class="card rounded-borders" style="border: none !important;">
                 <div class="card-body" style="padding:0;">
-                    <div style="background-color:#375a7f;height:25px;">
-                        <h3 class="text-uppercase text-center text-white" style="font-size:22px;">Player Leaderboard</h3>
+                    <div class="card-header-bar bg-primary">
+                        <h3>Player Leaderboard</h3>
                     </div>
                     <div class="table-responsive">
                         <table class="table sortable" id="leaderboard-table">
@@ -94,7 +130,7 @@ if (count($players) > 0) {
 
     $rank = 1;
     foreach ($players as $p) {
-        $rating_color = ($p['rating'] >= 1.0) ? 'color:green;' : 'color:red;';
+        $rating_class = ratingClass($p['rating']);
         echo '
                                 <tr>
                                     <td>'.$rank.'</td>
@@ -104,7 +140,7 @@ if (count($players) > 0) {
                                     <td>'.$p['deaths'].'</td>
                                     <td>'.$p['kdr'].'</td>
                                     <td>'.$p['adr'].'</td>
-                                    <td style="'.$rating_color.' font-weight:bold;">'.$p['rating'].'</td>
+                                    <td class="'.$rating_class.'" style="font-weight:bold;">'.$p['rating'].'</td>
                                 </tr>';
         $rank++;
     }
@@ -116,10 +152,17 @@ if (count($players) > 0) {
                 </div>
             </div>
         </div>
-    </div>
-    <p class="text-center text-muted" style="margin-top:10px;"><small>Minimum '.$leaderboard_min_matches.' matches required. Updates every '.(int)($leaderboard_cache_seconds / 60).' minutes (next update in ~'.$cache_minutes.' min).</small></p>';
+    </div>';
+
+    $rosterNote = !empty($activePlayers)
+        ? 'Filtered to <strong>'.count($activePlayers).'</strong> active roster players.'
+        : '<span style="color:#f0ad4e;">bot_rosters.txt not found — showing all players.</span>';
+
+    echo '
+    <p class="text-center text-muted" style="margin-top:10px;"><small>Minimum '.$leaderboard_min_matches.' matches required. Updates automatically after each match.</small></p>
+    <p class="text-center text-muted" style="margin-top:2px;"><small>'.$rosterNote.'</small></p>';
 } else {
-    echo '<h4 style="margin-top:40px;text-align:center;">No players with enough matches yet!</h4>';
+    echo '<h4 class="empty-state">No players with enough matches yet!</h4>';
 }
 ?>
     <script>

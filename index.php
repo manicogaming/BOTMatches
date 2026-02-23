@@ -101,7 +101,7 @@ $is_search = isset($_POST['Submit']) && !empty($_POST['search-bar']);
             }
         }
     } else {
-        echo '<h1 style="margin-top:20px;text-align:center;">No Results!</h1>';
+        echo '<h4 class="empty-state">No Results!</h4>';
     }
 
     // Pagination (only when not searching)

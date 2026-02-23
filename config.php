@@ -3,9 +3,8 @@ $site_name = "Matches"; // Name of Site
 $page_title = "Matches"; // Page title in browser.
 $limit = 10; // Page Limit for match cards.
 $leaderboard_min_matches = 100; // Minimum matches for leaderboard
-$leaderboard_cache_seconds = 300; // How often leaderboard recalculates (5 minutes)
-$teams_cache_seconds = 300; // How often team rankings recalculate (5 minutes)
 $teams_min_matches = 10; // Minimum matches for a team to appear in rankings
+$bot_rosters_path = 'C:\\csgosl\\server\\csgo\\addons\\sourcemod\\configs\\bot_rosters.txt'; // Path to active team rosters (VDF format)
 
 // Database Configuration
 // NOTE: If you ever expose this site beyond localhost, change these credentials!

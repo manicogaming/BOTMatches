@@ -38,6 +38,7 @@ if ($result->num_rows > 0) {
         $kdr = calculateKDR($row["kills"], $row["deaths"]);
         $ADR_roundup = calculateADR($row["damage"], $rounds);
         $HLTV2_roundup = calculateHLTV2($row["kills"], $row["deaths"], $row["assists"], $row["damage"], $row["kastrounds"], $rounds);
+        $ratingCls = ratingClass($HLTV2_roundup);
 
         if ($row["team"] == 2) {
             $t_name = $row["team_2_name"];
@@ -53,7 +54,7 @@ if ($result->num_rows > 0) {
                 <td>'.(int)$row["deaths"].'</td>
                 <td>'.$kdr.'</td>
                 <td>'.$ADR_roundup.'</td>
-                <td>'.$HLTV2_roundup.'</td>
+                <td class="'.$ratingCls.'" style="font-weight:bold;">'.$HLTV2_roundup.'</td>
             </tr>';
         } elseif ($row["team"] == 3) {
             $ct_name = $row["team_3_name"];
@@ -69,16 +70,16 @@ if ($result->num_rows > 0) {
                 <td>'.(int)$row["deaths"].'</td>
                 <td>'.$kdr.'</td>
                 <td>'.$ADR_roundup.'</td>
-                <td>'.$HLTV2_roundup.'</td>
+                <td class="'.$ratingCls.'" style="font-weight:bold;">'.$HLTV2_roundup.'</td>
             </tr>';
         }
     }
 
     if (empty($ct)) {
-        $ct = '<tr><td colspan="6"><h3 style="margin-top:20px;text-align:center;">No Players Recorded!</h3></td></tr>';
+        $ct = '<tr><td colspan="6" class="empty-state" style="margin-top:10px;">No Players Recorded!</td></tr>';
     }
     if (empty($t)) {
-        $t = '<tr><td colspan="6"><h3 style="margin-top:20px;text-align:center;">No Players Recorded!</h3></td></tr>';
+        $t = '<tr><td colspan="6" class="empty-state" style="margin-top:10px;">No Players Recorded!</td></tr>';
     }
 
     echo '
@@ -86,8 +87,8 @@ if ($result->num_rows > 0) {
         <div class="col-md-12">
             <div class="card rounded-borders" style="border: none !important;">
                 <div class="card-body" style="padding:0;">
-                    <div style="background-color:#5b768d;height:25px;">
-                        <h3 class="text-uppercase text-center text-white" style="font-size:22px;">'.h($ct_name).'</h3>
+                    <div class="card-header-bar bg-ct">
+                        <h3><a href="team.php?name='.urlencode($ct_name).'" class="text-white" style="text-decoration:none;">'.h($ct_name).'</a></h3>
                     </div>
                     <div class="table-responsive" style="border: none !important;">
                         <table class="table sortable" id="ct-table">
@@ -129,8 +130,8 @@ if ($result->num_rows > 0) {
         <div class="col-md-12">
             <div class="card rounded-borders" style="border: none !important;">
                 <div class="card-body" style="padding:0;">
-                    <div style="background-color:#ac9b66;height:25px;">
-                        <h3 class="text-uppercase text-center text-white" style="font-size:22px;">'.h($t_name).'</h3>
+                    <div class="card-header-bar bg-t">
+                        <h3><a href="team.php?name='.urlencode($t_name).'" class="text-white" style="text-decoration:none;">'.h($t_name).'</a></h3>
                     </div>
                     <div class="table-responsive" style="border-top:none !important;">
                         <table class="table sortable" id="t-table">
@@ -154,7 +155,7 @@ if ($result->num_rows > 0) {
         </div>
     </div>';
 } else {
-    echo '<h4 style="margin-top:40px;text-align:center;">No Match with that ID!</h4>';
+    echo '<h4 class="empty-state">No Match with that ID!</h4>';
 }
 
 $conn->close();

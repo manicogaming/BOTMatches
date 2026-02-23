@@ -66,10 +66,13 @@ function renderPageStart($page_title) {
     <link rel="stylesheet" href="assets/css/Search-Field-With-Icon.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
+        /* ── Navigation ── */
         .nav-links { text-align: center; margin-bottom: 10px; }
         .nav-links a { color: #aaa; margin: 0 12px; text-decoration: none; }
         .nav-links a:hover { color: #fff; text-decoration: none; }
         .nav-links a.active { color: #fff; font-weight: bold; }
+
+        /* ── AJAX banner ── */
         .new-match-banner {
             display: none;
             text-align: center;
@@ -80,9 +83,13 @@ function renderPageStart($page_title) {
             cursor: pointer;
         }
         .new-match-banner:hover { background-color: #4a6f94; }
+
+        /* ── Sortable tables ── */
         .sortable th { cursor: pointer; user-select: none; }
         .sortable th:hover { color: #fff; }
         .sort-arrow { font-size: 10px; margin-left: 4px; }
+
+        /* ── Missing map fallback ── */
         .missing-map-card {
             display: flex;
             align-items: center;
@@ -93,6 +100,45 @@ function renderPageStart($page_title) {
             font-size: 16px;
             color: #ff6b6b;
         }
+
+        /* ── Rating colors (shared across all pages) ── */
+        .rating-good { color: #5cb85c; }
+        .rating-bad { color: #d9534f; }
+
+        /* ── Card header bars ── */
+        .card-header-bar {
+            padding: 4px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-header-bar h3 {
+            font-size: 22px;
+            margin: 0;
+            text-transform: uppercase;
+            color: #fff;
+            text-align: center;
+        }
+        .card-header-bar.bg-primary { background-color: #375a7f; }
+        .card-header-bar.bg-ct { background-color: #5b768d; }
+        .card-header-bar.bg-t { background-color: #ac9b66; }
+
+        /* ── Empty state messages ── */
+        .empty-state {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 18px;
+            color: #888;
+        }
+
+        /* ── Form badges (shared: teams + player) ── */
+        .form-badge { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 3px; font-size: 11px; font-weight: bold; margin: 0 1px; }
+        .form-w { background-color: #5cb85c; color: #fff; }
+        .form-l { background-color: #d9534f; color: #fff; }
+        .form-d { background-color: #f0ad4e; color: #fff; }
+
+        /* ── Team rankings ── */
         .team-row { border-bottom: 1px solid #444; padding: 12px 15px; }
         .team-row:hover { background-color: #333; }
         .team-rank { font-size: 24px; font-weight: bold; min-width: 40px; text-align: center; }
@@ -103,12 +149,26 @@ function renderPageStart($page_title) {
         .team-change-down { color: #d9534f; font-size: 13px; }
         .team-change-same { color: #888; font-size: 13px; }
         .team-change-new { color: #5bc0de; font-size: 11px; font-weight: bold; }
-        .form-badge { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 3px; font-size: 11px; font-weight: bold; margin: 0 1px; }
-        .form-w { background-color: #5cb85c; color: #fff; }
-        .form-l { background-color: #d9534f; color: #fff; }
-        .form-d { background-color: #f0ad4e; color: #fff; }
         .team-stat-label { color: #888; font-size: 12px; }
         .team-stat-value { font-size: 14px; }
+
+        /* ── Profile / content cards ── */
+        .profile-card { background-color: #282828; border-radius: 8px; padding: 20px; margin-top: 15px; }
+        .stat-box { text-align: center; padding: 10px; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #fff; }
+        .stat-value-sm { font-size: 18px; font-weight: bold; color: #fff; }
+        .stat-label { color: #888; font-size: 12px; text-transform: uppercase; }
+        .section-title { font-size: 18px; font-weight: bold; color: #fff; margin: 25px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #444; }
+        .highlight-card { background-color: #333; border-radius: 5px; padding: 12px; text-align: center; margin-bottom: 10px; }
+        .highlight-value { font-size: 22px; font-weight: bold; color: #5bc0de; }
+        .highlight-label { font-size: 11px; color: #888; text-transform: uppercase; }
+
+        /* ── Tabs ── */
+        .tab-btn { background: none; border: none; color: #aaa; padding: 8px 16px; cursor: pointer; font-size: 14px; border-bottom: 2px solid transparent; }
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active { color: #fff; font-weight: bold; border-bottom: 2px solid #375a7f; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
@@ -156,6 +216,139 @@ function unicode2html($str) {
     setlocale(LC_ALL, 'en_US.UTF-8');
     $str = preg_replace("/u([0-9a-fA-F]{4})/", "&#x\\1;", $str);
     return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $str);
+}
+
+/**
+ * Return CSS class for rating coloring.
+ */
+function ratingClass($rating) {
+    return $rating >= 1.0 ? 'rating-good' : 'rating-bad';
+}
+
+/**
+ * Return CSS class for W/L/D coloring.
+ */
+function wlClass($wl) {
+    if ($wl === 'W') return 'rating-good';
+    if ($wl === 'L') return 'rating-bad';
+    return 'text-warning'; // Bootstrap amber for draws
+}
+
+/**
+ * Get the latest match_id from the database.
+ * Used for cache invalidation — one cheap query instead of time-based TTL.
+ */
+function getLatestMatchId($conn) {
+    $result = $conn->query("SELECT MAX(match_id) AS latest FROM sql_matches_scoretotal");
+    if ($result && $row = $result->fetch_assoc()) {
+        return (int)$row['latest'];
+    }
+    return 0;
+}
+
+/**
+ * Parse a bot_rosters.txt VDF file and return array of active team names.
+ * Returns empty array if file not found or unreadable (rankings will be unfiltered).
+ *
+ * VDF format:
+ *   "Teams"
+ *   {
+ *       "Team Name"
+ *       {
+ *           "players"    "player1,player2,player3"
+ *           "logo"       "ABC"
+ *       }
+ *   }
+ */
+function parseActiveRosters($filePath) {
+    if (empty($filePath) || !file_exists($filePath)) {
+        return [];
+    }
+
+    $content = file_get_contents($filePath);
+    if ($content === false) {
+        return [];
+    }
+
+    $teams = [];
+    // Match top-level team name keys inside the "Teams" block
+    // Pattern: tab + "TeamName" followed by newline + tab + {
+    if (preg_match_all('/^\t"([^"]+)"\s*\n\t\{/m', $content, $matches)) {
+        $teams = $matches[1];
+    }
+
+    return $teams;
+}
+
+/**
+ * Parse bot_rosters.txt and return flat array of all active player names.
+ * VDF "players" values are comma-separated: "player1,player2,player3"
+ */
+function parseActiveRosterPlayers($filePath) {
+    if (empty($filePath) || !file_exists($filePath)) {
+        return [];
+    }
+
+    $content = file_get_contents($filePath);
+    if ($content === false) {
+        return [];
+    }
+
+    $players = [];
+    // Match: "players"    "name1,name2,name3"
+    if (preg_match_all('/"players"\s+"([^"]+)"/', $content, $matches)) {
+        foreach ($matches[1] as $playerList) {
+            foreach (explode(',', $playerList) as $name) {
+                $name = trim($name);
+                if ($name !== '') {
+                    $players[] = $name;
+                }
+            }
+        }
+    }
+
+    return array_unique($players);
+}
+
+/**
+ * Parse bot_rosters.txt and return full mapping: team name => ['players' => [...], 'logo' => '...']
+ */
+function parseActiveRostersFull($filePath) {
+    if (empty($filePath) || !file_exists($filePath)) {
+        return [];
+    }
+
+    $content = file_get_contents($filePath);
+    if ($content === false) {
+        return [];
+    }
+
+    $rosters = [];
+    // Match each team block: "TeamName" { "players" "..." "logo" "..." }
+    $pattern = '/^\t"([^"]+)"\s*\n\t\{([^}]+)\}/m';
+    if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+        foreach ($matches as $match) {
+            $teamName = $match[1];
+            $block = $match[2];
+
+            $players = [];
+            if (preg_match('/"players"\s+"([^"]+)"/', $block, $pm)) {
+                foreach (explode(',', $pm[1]) as $name) {
+                    $name = trim($name);
+                    if ($name !== '') $players[] = $name;
+                }
+            }
+
+            $logo = '';
+            if (preg_match('/"logo"\s+"([^"]+)"/', $block, $lm)) {
+                $logo = $lm[1];
+            }
+
+            $rosters[$teamName] = ['players' => $players, 'logo' => $logo];
+        }
+    }
+
+    return $rosters;
 }
 
 /**
@@ -246,8 +439,12 @@ function vrsMovMultiplier($roundsWon, $roundsLost) {
 /**
  * Compute full team rankings from match history using Valve-inspired model
  * with active-day decay. Returns array of teams sorted by points descending.
+ * 
+ * If $activeTeams is non-empty, only teams in that list appear in the output.
+ * All teams still participate in Elo/factor calculations for accuracy —
+ * the filter is applied at the end as a display filter.
  */
-function computeTeamRankings($conn, $min_matches = 10) {
+function computeTeamRankings($conn, $min_matches = 10, $activeTeams = []) {
     // Build the active-day timeline first
     $timeline = buildActiveDayTimeline($conn);
     if (empty($timeline)) return [];
@@ -477,6 +674,7 @@ function computeTeamRankings($conn, $min_matches = 10) {
             'winrate'    => $winrate,
             'form'       => $stats['form'],
             'peak_elo'   => round($stats['peak_elo'], 0),
+            'current_elo'=> round($elo[$teamName], 0),
             'last_match' => $stats['last_match'],
             'snapshot_elo' => isset($snapshotElos[$teamName]) ? $snapshotElos[$teamName] : null,
             'sos'        => round($normSoS * 100, 1),
@@ -491,6 +689,13 @@ function computeTeamRankings($conn, $min_matches = 10) {
     usort($ranked, function($a, $b) {
         return $b['points'] <=> $a['points'];
     });
+
+    // Filter to active rosters only (if provided)
+    if (!empty($activeTeams)) {
+        $ranked = array_values(array_filter($ranked, function($team) use ($activeTeams) {
+            return in_array($team['name'], $activeTeams);
+        }));
+    }
 
     // Compute rank changes vs snapshot (using old Elo as proxy for old rank)
     $snapshotSorted = $ranked;
