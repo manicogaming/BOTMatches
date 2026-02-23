@@ -1,143 +1,171 @@
 <?php
-require ("config.php");
+require_once("config.php");
+require_once("functions.php");
+require_once("maps.php");
+
 if (isset($_GET["page"])) {
-    $page_number = $_GET["page"];
+    $page_number = max(1, (int)$_GET["page"]);
 } else {
-    $page_number = 0;
+    $page_number = 1;
 }
+
+// Get latest match_id for AJAX polling
+$latest_result = $conn->query("SELECT MAX(match_id) AS latest FROM sql_matches_scoretotal");
+$latest_row = $latest_result->fetch_assoc();
+$latest_match_id = (int)$latest_row['latest'];
+
+renderPageStart($page_title);
+
+$is_search = isset($_POST['Submit']) && !empty($_POST['search-bar']);
 ?>
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?></title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/4.1.2/darkly/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <link rel="stylesheet" href="assets/css/Search-Field-With-Icon.css?h=407fbd3e4331a9634a54008fed5b49b9">
-    <link rel="stylesheet" href="assets/css/styles.css?h=a95bd1c65d4dfacc3eae1239db3fae0b">
-</head>
-
-<body>
-    <div class="container" style="margin-top:20px;">
-        <?php
-		$page = $_SERVER['PHP_SELF'];
-		$sec = "10";
-		header("Refresh: $sec; url=$page");
-        require ("head.php");
-        ?>
         <form method="post">
-            <div class="search-container center" style="width:70%;"><input type="text" name="search-bar" placeholder="Search Match ID, Player Name or SteamID64" class="search-input"><button class="btn btn-light search-btn" type="submit" name="Submit"> <i class="fa fa-search"></i></button></div>
+            <div class="search-container center" style="width:70%;"><input type="text" name="search-bar" placeholder="Search Match ID, Player Name or Team Name" class="search-input" value="<?php echo $is_search ? h($_POST['search-bar']) : ''; ?>"><button class="btn btn-light search-btn" type="submit" name="Submit"> <i class="fa fa-search"></i></button></div>
         </form>
-	<?php
-    if (isset($_POST['Submit']) && !empty($_POST['search-bar'])) {
-        $search = $conn->real_escape_string($_POST['search-bar']);
+        <div id="new-match-banner" class="new-match-banner text-white" onclick="location.reload();">
+            <i class="fa fa-refresh"></i> New matches available — click to refresh
+        </div>
+<?php
+    if ($is_search) {
+        $search = $_POST['search-bar'];
+        $like_search = "%".$search."%";
+        $match_id_search = is_numeric($search) ? (int)$search : 0;
 
-        $sql = "SELECT DISTINCT sql_matches.name, sql_matches_scoretotal.match_id, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name
+        $stmt = $conn->prepare("SELECT DISTINCT sql_matches.name, sql_matches_scoretotal.match_id, sql_matches_scoretotal.timestamp, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name
                 FROM sql_matches_scoretotal INNER JOIN sql_matches
                 ON sql_matches_scoretotal.match_id = sql_matches.match_id
-                WHERE sql_matches_scoretotal.team_2_name LIKE '%".$search."%' OR sql_matches_scoretotal.team_3_name LIKE '%".$search."%' OR sql_matches_scoretotal.match_id = '".$search."' OR sql_matches.name LIKE '%".$search."' ORDER BY sql_matches_scoretotal.match_id DESC";
-        
+                WHERE sql_matches_scoretotal.team_2_name LIKE ?
+                OR sql_matches_scoretotal.team_3_name LIKE ?
+                OR sql_matches_scoretotal.match_id = ?
+                OR sql_matches.name LIKE ?
+                ORDER BY sql_matches_scoretotal.match_id DESC");
+        $stmt->bind_param("ssis", $like_search, $like_search, $match_id_search, $like_search);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
     } else {
-        if (isset($_GET["page"])) {
-            $page_number = $conn->real_escape_string($_GET["page"]);
-            $offset = ($page_number - 1) * $limit; 
-            $sql = "SELECT * FROM sql_matches_scoretotal ORDER BY match_id DESC LIMIT $offset, $limit";
-        } else {
-            $page_number = 1;
-            $sql = "SELECT * FROM sql_matches_scoretotal ORDER BY match_id DESC LIMIT $limit";
-        }     
+        $offset = ($page_number - 1) * $limit;
+        $stmt = $conn->prepare("SELECT * FROM sql_matches_scoretotal ORDER BY match_id DESC LIMIT ?, ?");
+        $stmt->bind_param("ii", $offset, $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
     }
 
-    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $rounds = ($row["team_2"] + $row["team_3"]);
+            $half = $rounds / 2;
 
-    if($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-			$rounds = ($row["team_2"] + $row["team_3"]);
-            $half = ($row["team_2"] + $row["team_3"]) / 2;
-			
-			if ($row["team_3"] > $half) {
-			$image = $row["team_3_name"];
-			} elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
-				$image = 'tie_icon.png';
-			} else {
-				$image = $row["team_2_name"];
-			}
-           
+            if ($row["team_3"] > $half) {
+                $image = $row["team_3_name"];
+            } elseif ($row["team_2"] == $half && $row["team_3"] == $half) {
+                $image = 'tie_icon.png';
+            } else {
+                $image = $row["team_2_name"];
+            }
+
             $map_img = array_search($row["map"], $maps);
-            echo '        
-            <a href="scoreboard.php?id='.$row["match_id"].'">
-                <div class="card match-card center" data-bs-hover-animate="pulse" style="margin-top:35px;"><img class="card-img w-100 d-block matches-img rounded-borders" style="background-image:url(&quot;'.$map_img.'&quot;);height:150px;">
+            $timestamp_str = isset($row["timestamp"]) ? formatTimestamp($row["timestamp"]) : '';
+
+            if ($map_img === false) {
+                // Map not in the array - show prominently so it can be added
+                echo '
+            <a href="scoreboard.php?id='.(int)$row["match_id"].'">
+                <div class="card match-card center" data-bs-hover-animate="pulse" style="margin-top:35px;">
+                    <div class="missing-map-card rounded-borders">
+                        <div class="text-center">
+                            <i class="fa fa-exclamation-triangle"></i> Missing map image: <strong>'.h($row["map"]).'</strong>
+                        </div>
+                    </div>
                     <div class="card-img-overlay container">
-					<div class="row align-items-center">
-                        <div class="col-sm d-none d-md-block"><h4 class="text-white float-left" style="font-size:70px;margin-bottom:0">'.$row['team_3'].':'.$row['team_2'].'</h4></div><div class="col-12 col-sm text-center"><img class="img-fluid float-sm-right" src="assets/img/icons/'.$image.'?h=4347d1d6c5595286f4b1acacc902fedd" style="max-width:110px;"></div></div>
-					</div>
+                        <div class="row align-items-center">
+                            <div class="col-sm d-none d-md-block"><h4 class="text-white float-left" style="font-size:70px;margin-bottom:0">'.(int)$row['team_3'].':'.(int)$row['team_2'].'</h4></div>
+                            <div class="col-12 col-sm text-center"><img class="img-fluid float-sm-right" src="assets/img/icons/'.h($image).'" style="max-width:110px;"></div>
+                        </div>
+                        <div class="row"><div class="col-12"><small class="text-white-50">'.$timestamp_str.'</small></div></div>
+                    </div>
                 </div>
             </a>';
+            } else {
+                echo '
+            <a href="scoreboard.php?id='.(int)$row["match_id"].'">
+                <div class="card match-card center" data-bs-hover-animate="pulse" style="margin-top:35px;"><img class="card-img w-100 d-block matches-img rounded-borders" style="background-image:url(&quot;'.h($map_img).'&quot;);height:150px;">
+                    <div class="card-img-overlay container">
+                        <div class="row align-items-center">
+                            <div class="col-sm d-none d-md-block"><h4 class="text-white float-left" style="font-size:70px;margin-bottom:0">'.(int)$row['team_3'].':'.(int)$row['team_2'].'</h4></div>
+                            <div class="col-12 col-sm text-center"><img class="img-fluid float-sm-right" src="assets/img/icons/'.h($image).'" style="max-width:110px;"></div>
+                        </div>
+                        <div class="row"><div class="col-12"><small class="text-white-50">'.$timestamp_str.'</small></div></div>
+                    </div>
+                </div>
+            </a>';
+            }
         }
-		    } else {
+    } else {
         echo '<h1 style="margin-top:20px;text-align:center;">No Results!</h1>';
     }
-    
-    ?>
-	<?php
-			if (!isset($_POST['Submit'])) {
-				$sql_pages = "SELECT COUNT(*) FROM sql_matches_scoretotal";
-				$result_pages = $conn->query($sql_pages);
-				$row_pages = $result_pages->fetch_assoc();
-			    $total_pages = ceil($row_pages["COUNT(*)"] / $limit);
-			echo '
-            <nav style="margin-top:30px;width:80%;" class="center">
-                <ul class="pagination">';
-                if ($page_number == 1) {
-                    echo '
-						<li class="page-item disabled">
-                        <span class="page-link">Previous</span>
-						</li>';
-					} else {
-						$past_page = $page_number - 1;
-                    echo '
-                    <li class="page-item">
-                        <a class="page-link" href="?page='.$past_page.'">Previous</a>
-                    </li>';
-                }
-                for ($i = max(1, $page_number - 2); $i <= min($page_number + 4, $total_pages); $i++) {
-                    if ($i == $page_number) {
-                        echo '
-                        <li class="page-item active">
-                            <span class="page-link">
-                            '.$i.'
-                            <span class="sr-only">(current)</span>
-                            </span>
-                        </li>';
-                    } else {
-                        echo '<li class="page-item"><a class="page-link" href="?page='.$i.'">'.$i.'</a></li>';
-                    }
-                }
-                if ($page_number == $total_pages) {
-                    echo '
-                    <li class="page-item disabled">
-                        <span class="page-link">Next</span>
-                    </li>';
-                } else {
-                    $next_page = $page_number + 1;
-                    echo '
-                    <li class="page-item">
-                        <a class="page-link" href="?page='.$next_page.'">Next</a>
-                    </li>';
-                }
-                echo '
-                </ul>
-            </nav>';
-        }
-	?>
-    </div><a class="text-white" href="https://github.com/DistrictNineHost/Sourcemod-SQLMatches" target="_blank" style="position:fixed;bottom:0px;right:10px;">Developed by DistrictNine.Host</a>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.2/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/bs-animation.js?h=98fdbbd86223499341d76166d015c405"></script>
-</body>
 
-</html>
+    // Pagination (only when not searching)
+    if (!$is_search) {
+        $sql_pages = "SELECT COUNT(*) FROM sql_matches_scoretotal";
+        $result_pages = $conn->query($sql_pages);
+        $row_pages = $result_pages->fetch_assoc();
+        $total_pages = ceil($row_pages["COUNT(*)"] / $limit);
+
+        echo '
+        <nav style="margin-top:30px;width:80%;" class="center">
+            <ul class="pagination">';
+
+        if ($page_number == 1) {
+            echo '
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>';
+        } else {
+            echo '
+                <li class="page-item"><a class="page-link" href="?page='.($page_number - 1).'">Previous</a></li>';
+        }
+
+        for ($i = max(1, $page_number - 2); $i <= min($page_number + 4, $total_pages); $i++) {
+            if ($i == $page_number) {
+                echo '
+                <li class="page-item active"><span class="page-link">'.$i.' <span class="sr-only">(current)</span></span></li>';
+            } else {
+                echo '
+                <li class="page-item"><a class="page-link" href="?page='.$i.'">'.$i.'</a></li>';
+            }
+        }
+
+        if ($page_number == $total_pages) {
+            echo '
+                <li class="page-item disabled"><span class="page-link">Next</span></li>';
+        } else {
+            echo '
+                <li class="page-item"><a class="page-link" href="?page='.($page_number + 1).'">Next</a></li>';
+        }
+
+        echo '
+            </ul>
+        </nav>';
+    }
+
+    $conn->close();
+?>
+    <script>
+    // AJAX polling for new matches (replaces auto-refresh)
+    (function() {
+        var latestMatchId = <?php echo $latest_match_id; ?>;
+        var isSearch = <?php echo $is_search ? 'true' : 'false'; ?>;
+        if (isSearch) return; // Don't poll during search
+
+        setInterval(function() {
+            fetch('api_latest.php')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.match_id > latestMatchId) {
+                        document.getElementById('new-match-banner').style.display = 'block';
+                        latestMatchId = data.match_id;
+                    }
+                })
+                .catch(function() {}); // Silently ignore fetch errors
+        }, 10000);
+    })();
+    </script>
+<?php renderPageEnd(); ?>
