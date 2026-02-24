@@ -7,33 +7,73 @@ renderPageStart($page_title . " - Team Rankings");
 $cache_file = __DIR__ . '/cache_teams.json';
 $teams = null;
 
-// Parse active rosters from game server
-$activeTeams = parseActiveRosters($bot_rosters_path);
-$rosterHash = !empty($activeTeams) ? md5(implode('|', $activeTeams)) : '';
+// Toggle: ?all=1 shows all teams, default shows active roster only
+$showAll = isset($_GET['all']) && $_GET['all'] === '1';
 
-// Check if cache is still valid (matches latest match_id AND roster hash)
+// Parse active rosters from game server (full: team → {players, logo})
+$allRosters = parseActiveRostersFull($bot_rosters_path);
+$activeTeams = array_keys($allRosters);
+$hasRoster = !empty($activeTeams);
+
+// Check if cache is still valid (matches latest match_id)
 $latestMatchId = getLatestMatchId($conn);
 if (file_exists($cache_file)) {
     $cache = json_decode(file_get_contents($cache_file), true);
-    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId
-        && isset($cache['roster_hash']) && $cache['roster_hash'] === $rosterHash) {
+    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId) {
         $teams = $cache['data'];
     }
 }
 
-// Cache miss, new match, or roster change — recompute
+// Cache miss or new match — recompute (always unfiltered)
 if ($teams === null) {
-    $teams = computeTeamRankings($conn, $teams_min_matches, $activeTeams);
-    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'roster_hash' => $rosterHash, 'data' => $teams]));
+    $teams = computeTeamRankings($conn, $teams_min_matches);
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'data' => $teams]));
+}
+
+// Bulk-resolve player IDs for roster links
+$playerIds = [];
+if ($hasRoster) {
+    $allPlayerNames = [];
+    foreach ($allRosters as $r) {
+        foreach ($r['players'] as $pn) {
+            $allPlayerNames[$pn] = true;
+        }
+    }
+    $allPlayerNames = array_keys($allPlayerNames);
+    if (!empty($allPlayerNames)) {
+        $ph = implode(',', array_fill(0, count($allPlayerNames), '?'));
+        $stmt = $conn->prepare("SELECT id, name FROM sql_players WHERE name IN ({$ph})");
+        $stmt->bind_param(str_repeat('s', count($allPlayerNames)), ...$allPlayerNames);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $playerIds[$row['name']] = (int)$row['id'];
+        }
+    }
 }
 
 $conn->close();
 
-if (count($teams) > 0) {
+// Apply roster filter at display time (unless ?all=1 or no roster file)
+$displayTeams = $teams;
+if (!$showAll && $hasRoster) {
+    $displayTeams = array_values(array_filter($teams, function($t) use ($activeTeams) {
+        return in_array($t['name'], $activeTeams);
+    }));
+}
+
+if (count($displayTeams) > 0) {
     $today = date('j F Y');
 
+    // Toggle link
+    if ($hasRoster) {
+        $toggleUrl = $showAll ? 'teams.php' : 'teams.php?all=1';
+        $toggleLabel = $showAll ? 'Show Active Rosters Only' : 'Show All Teams';
+        echo '<div class="text-center" style="margin-top:15px;"><a href="'.$toggleUrl.'" class="btn btn-sm btn-outline-info">'.$toggleLabel.'</a></div>';
+    }
+
     echo '
-    <div style="margin-top:20px;">
+    <div style="margin-top:10px;">
         <div class="card rounded-borders" style="border: none !important;">
             <div class="card-body" style="padding:0;">
                 <div class="card-header-bar bg-primary" style="padding:12px 20px;">
@@ -41,7 +81,7 @@ if (count($teams) > 0) {
                     <p class="text-center text-white-50" style="margin:0; font-size:13px;">'.$today.'</p>
                 </div>';
 
-    foreach ($teams as $team) {
+    foreach ($displayTeams as $team) {
         // Rank change indicator
         if ($team['rank_change'] === null) {
             $change_html = '<span class="team-change-new">NEW</span>';
@@ -105,10 +145,20 @@ if (count($teams) > 0) {
                             '.$form_html.'<br>
                             <span class="team-stat-label">form</span>
                         </div>
-                        <div class="text-center" style="min-width:40px;">
-                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleDetails(\''.$teamId.'\')" style="padding:2px 8px; font-size:11px;">
+                        <div class="text-center" style="min-width:70px;">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleDetails(\''.$teamId.'\')" style="padding:2px 8px; font-size:11px;" title="VRS Breakdown">
                                 <i class="fa fa-bar-chart"></i>
-                            </button>
+                            </button>';
+
+        // Roster toggle button (only if roster data exists for this team)
+        if (isset($allRosters[$team['name']])) {
+            echo '
+                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleRoster(\''.$teamId.'\')" style="padding:2px 8px; font-size:11px; margin-left:2px;" title="Active Roster">
+                                <i class="fa fa-users"></i>
+                            </button>';
+        }
+
+        echo '
                         </div>
                     </div>
                     <div id="details_'.$teamId.'" style="display:none; margin-top:10px; padding:8px 45px;">
@@ -141,13 +191,45 @@ if (count($teams) > 0) {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>';
+
+        // Collapsible roster section
+        if (isset($allRosters[$team['name']])) {
+            $rosterPlayers = $allRosters[$team['name']]['players'];
+            echo '
+                    <div id="roster_'.$teamId.'" style="display:none; margin-top:10px; padding:8px 45px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:6px;">';
+
+            foreach ($rosterPlayers as $pName) {
+                $pid = isset($playerIds[$pName]) ? $playerIds[$pName] : null;
+                $nameLink = $pid
+                    ? '<a href="player.php?id='.$pid.'" class="text-white">'.h($pName).'</a>'
+                    : h($pName);
+
+                echo '
+                            <div class="highlight-card" style="padding:6px 12px; margin-bottom:0;">
+                                <div style="font-size:13px; font-weight:bold;">'.$nameLink.'</div>
+                            </div>';
+            }
+
+            echo '
+                        </div>
+                    </div>';
+        }
+
+        echo '
                 </div>';
     }
 
-    $rosterNote = !empty($activeTeams)
-        ? 'Filtered to <strong>'.count($activeTeams).'</strong> active rosters from bot_rosters.txt.'
-        : '<span style="color:#f0ad4e;">bot_rosters.txt not found — showing all teams.</span>';
+    if ($hasRoster && !$showAll) {
+        $rosterNote = 'Showing <strong>'.count($displayTeams).'</strong> active rosters from bot_rosters.txt.';
+    } elseif ($hasRoster && $showAll) {
+        $rosterNote = 'Showing all <strong>'.count($displayTeams).'</strong> teams.';
+    } else {
+        $rosterNote = '<span style="color:#f0ad4e;">bot_rosters.txt not found — showing all teams.</span>';
+    }
+
+    $activeDays = !empty($teams) ? $teams[0]['active_days'] : 0;
 
     echo '
             </div>
@@ -160,7 +242,7 @@ if (count($teams) > 0) {
         <small>'.$rosterNote.'</small>
     </p>
     <p class="text-center text-muted" style="margin-top:2px;">
-        <small>Decay based on <strong>'.$teams[0]['active_days'].' active days</strong> (days with matches played). Full value for '.VRS_FULL_VALUE_ACTIVE_DAYS.' active days, fully decayed after '.VRS_DECAY_ACTIVE_DAYS.'.</small>
+        <small>Decay based on <strong>'.$activeDays.' active days</strong> (days with matches played). Full value for '.VRS_FULL_VALUE_ACTIVE_DAYS.' active days, fully decayed after '.VRS_DECAY_ACTIVE_DAYS.'.</small>
     </p>
     <p class="text-center text-muted" style="margin-top:2px;">
         <small>Model based on <a href="https://github.com/ValveSoftware/counter-strike_regional_standings" class="text-info" target="_blank">Valve Regional Standings</a> — adapted for bot matches (no prize money/LAN factors).</small>
@@ -172,6 +254,10 @@ if (count($teams) > 0) {
     <script>
     function toggleDetails(teamId) {
         var el = document.getElementById('details_' + teamId);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+    function toggleRoster(teamId) {
+        var el = document.getElementById('roster_' + teamId);
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
     </script>

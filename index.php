@@ -30,14 +30,13 @@ $is_search = isset($_POST['Submit']) && !empty($_POST['search-bar']);
         $like_search = "%".$search."%";
         $match_id_search = is_numeric($search) ? (int)$search : 0;
 
-        $stmt = $conn->prepare("SELECT DISTINCT sql_matches.name, sql_matches_scoretotal.match_id, sql_matches_scoretotal.timestamp, sql_matches_scoretotal.map, sql_matches_scoretotal.team_2, sql_matches_scoretotal.team_2_name, sql_matches_scoretotal.team_3, sql_matches_scoretotal.team_3_name
-                FROM sql_matches_scoretotal INNER JOIN sql_matches
-                ON sql_matches_scoretotal.match_id = sql_matches.match_id
-                WHERE sql_matches_scoretotal.team_2_name LIKE ?
-                OR sql_matches_scoretotal.team_3_name LIKE ?
-                OR sql_matches_scoretotal.match_id = ?
-                OR sql_matches.name LIKE ?
-                ORDER BY sql_matches_scoretotal.match_id DESC");
+        $stmt = $conn->prepare("SELECT s.match_id, s.timestamp, s.map, s.team_2, s.team_2_name, s.team_3, s.team_3_name
+                FROM sql_matches_scoretotal s
+                WHERE s.team_2_name LIKE ?
+                OR s.team_3_name LIKE ?
+                OR s.match_id = ?
+                OR s.match_id IN (SELECT m.match_id FROM sql_matches m WHERE m.name LIKE ?)
+                ORDER BY s.match_id DESC");
         $stmt->bind_param("ssis", $like_search, $like_search, $match_id_search, $like_search);
         $stmt->execute();
         $result = $stmt->get_result();

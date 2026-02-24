@@ -145,22 +145,19 @@ if (!empty($allPlayerNames)) {
 }
 
 // ── Get VRS ranking data (from cache if available) ──
-$activeTeams = parseActiveRosters($bot_rosters_path);
-$rosterHash = !empty($activeTeams) ? md5(implode('|', $activeTeams)) : '';
 $latestMatchId = getLatestMatchId($conn);
 
 $cache_file = __DIR__ . '/cache_teams.json';
 $rankedTeams = null;
 if (file_exists($cache_file)) {
     $cache = json_decode(file_get_contents($cache_file), true);
-    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId
-        && isset($cache['roster_hash']) && $cache['roster_hash'] === $rosterHash) {
+    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId) {
         $rankedTeams = $cache['data'];
     }
 }
 if ($rankedTeams === null) {
-    $rankedTeams = computeTeamRankings($conn, $teams_min_matches, $activeTeams);
-    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'roster_hash' => $rosterHash, 'data' => $rankedTeams]));
+    $rankedTeams = computeTeamRankings($conn, $teams_min_matches);
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'data' => $rankedTeams]));
 }
 
 // Find this team in rankings

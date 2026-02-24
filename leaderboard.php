@@ -7,71 +7,41 @@ renderPageStart($page_title . " - Leaderboard");
 $cache_file = __DIR__ . '/cache_leaderboard.json';
 $players = null;
 
+// Toggle: ?all=1 shows all players, default shows active roster only
+$showAll = isset($_GET['all']) && $_GET['all'] === '1';
+
 // Parse active roster players for filtering
 $activePlayers = parseActiveRosterPlayers($bot_rosters_path);
-$rosterHash = !empty($activePlayers) ? md5(implode('|', $activePlayers)) : '';
+$hasRoster = !empty($activePlayers);
 
-// Check if cache is still valid (matches latest match_id AND roster hash)
+// Check if cache is still valid (matches latest match_id)
 $latestMatchId = getLatestMatchId($conn);
 if (file_exists($cache_file)) {
     $cache = json_decode(file_get_contents($cache_file), true);
-    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId
-        && isset($cache['roster_hash']) && $cache['roster_hash'] === $rosterHash) {
+    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId) {
         $players = $cache['data'];
     }
 }
 
-// Cache miss, new match, or roster change — recompute
+// Cache miss or new match — recompute (always full/unfiltered)
 if ($players === null) {
-    if (!empty($activePlayers)) {
-        // Build parameterized IN clause
-        $placeholders = implode(',', array_fill(0, count($activePlayers), '?'));
-        $types = str_repeat('s', count($activePlayers));
-
-        $sql = "SELECT 
-                p.id,
-                m.name,
-                SUM(m.kills) AS totalkills,
-                SUM(m.assists) AS totalassists,
-                SUM(m.deaths) AS totaldeaths,
-                SUM(m.damage) AS totaldamage,
-                SUM(m.kastrounds) AS totalkastrounds,
-                COUNT(DISTINCT m.match_id) AS matches,
-                SUM(s.team_2 + s.team_3) AS totalrounds
-            FROM sql_matches m
-            INNER JOIN sql_players p ON p.name = m.name
-            INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
-            WHERE m.name IN ({$placeholders})
-            GROUP BY p.id, m.name
-            HAVING COUNT(DISTINCT m.match_id) >= ?
-            ORDER BY m.name";
-
-        $stmt = $conn->prepare($sql);
-        $params = $activePlayers;
-        $params[] = $leaderboard_min_matches;
-        $types .= 'i';
-        $stmt->bind_param($types, ...$params);
-    } else {
-        // No roster file — show all players (fallback)
-        $stmt = $conn->prepare("SELECT 
-                p.id,
-                m.name,
-                SUM(m.kills) AS totalkills,
-                SUM(m.assists) AS totalassists,
-                SUM(m.deaths) AS totaldeaths,
-                SUM(m.damage) AS totaldamage,
-                SUM(m.kastrounds) AS totalkastrounds,
-                COUNT(DISTINCT m.match_id) AS matches,
-                SUM(s.team_2 + s.team_3) AS totalrounds
-            FROM sql_matches m
-            INNER JOIN sql_players p ON p.name = m.name
-            INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
-            GROUP BY p.id, m.name
-            HAVING COUNT(DISTINCT m.match_id) >= ?
-            ORDER BY m.name");
-        $stmt->bind_param("i", $leaderboard_min_matches);
-    }
-
+    $stmt = $conn->prepare("SELECT 
+            p.id,
+            m.name,
+            SUM(m.kills) AS totalkills,
+            SUM(m.assists) AS totalassists,
+            SUM(m.deaths) AS totaldeaths,
+            SUM(m.damage) AS totaldamage,
+            SUM(m.kastrounds) AS totalkastrounds,
+            COUNT(DISTINCT m.match_id) AS matches,
+            SUM(s.team_2 + s.team_3) AS totalrounds
+        FROM sql_matches m
+        INNER JOIN sql_players p ON p.name = m.name
+        INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
+        GROUP BY p.id, m.name
+        HAVING COUNT(DISTINCT m.match_id) >= ?
+        ORDER BY m.name");
+    $stmt->bind_param("i", $leaderboard_min_matches);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -97,15 +67,32 @@ if ($players === null) {
         return $b['rating'] <=> $a['rating'];
     });
 
-    // Write cache with match_id and roster_hash for invalidation
-    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'roster_hash' => $rosterHash, 'data' => $players]));
+    // Cache always stores full unfiltered data
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'data' => $players]));
 }
 
 $conn->close();
 
-if (count($players) > 0) {
-    echo '
-    <div class="row" style="margin-top:20px;">
+// Apply roster filter at display time (unless ?all=1 or no roster file)
+$displayPlayers = $players;
+if (!$showAll && $hasRoster) {
+    $displayPlayers = array_values(array_filter($players, function($p) use ($activePlayers) {
+        return in_array($p['name'], $activePlayers);
+    }));
+}
+
+if (count($displayPlayers) > 0) {
+    // Toggle link
+    if ($hasRoster) {
+        $toggleUrl = $showAll ? 'leaderboard.php' : 'leaderboard.php?all=1';
+        $toggleLabel = $showAll ? 'Show Active Roster Only' : 'Show All Players';
+        $toggleHtml = '<div class="text-center" style="margin-top:15px;"><a href="'.$toggleUrl.'" class="btn btn-sm btn-outline-info">'.$toggleLabel.'</a></div>';
+    } else {
+        $toggleHtml = '';
+    }
+
+    echo $toggleHtml.'
+    <div class="row" style="margin-top:10px;">
         <div class="col-md-12">
             <div class="card rounded-borders" style="border: none !important;">
                 <div class="card-body" style="padding:0;">
@@ -129,7 +116,7 @@ if (count($players) > 0) {
                             <tbody>';
 
     $rank = 1;
-    foreach ($players as $p) {
+    foreach ($displayPlayers as $p) {
         $rating_class = ratingClass($p['rating']);
         echo '
                                 <tr>
@@ -154,9 +141,13 @@ if (count($players) > 0) {
         </div>
     </div>';
 
-    $rosterNote = !empty($activePlayers)
-        ? 'Filtered to <strong>'.count($activePlayers).'</strong> active roster players.'
-        : '<span style="color:#f0ad4e;">bot_rosters.txt not found — showing all players.</span>';
+    if ($hasRoster && !$showAll) {
+        $rosterNote = 'Showing <strong>'.count($displayPlayers).'</strong> active roster players.';
+    } elseif ($hasRoster && $showAll) {
+        $rosterNote = 'Showing all <strong>'.count($displayPlayers).'</strong> players.';
+    } else {
+        $rosterNote = '<span style="color:#f0ad4e;">bot_rosters.txt not found — showing all players.</span>';
+    }
 
     echo '
     <p class="text-center text-muted" style="margin-top:10px;"><small>Minimum '.$leaderboard_min_matches.' matches required. Updates automatically after each match.</small></p>
