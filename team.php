@@ -226,7 +226,7 @@ $mapStats = [];
 foreach ($allMatches as $m) {
     $map = $m['map'];
     if (!isset($mapStats[$map])) {
-        $mapStats[$map] = ['kills' => 0, 'deaths' => 0, 'assists' => 0, 'damage' => 0, 'kastrounds' => 0, 'rounds' => 0, 'matches' => 0, 'wins' => 0];
+        $mapStats[$map] = ['kills' => 0, 'deaths' => 0, 'assists' => 0, 'damage' => 0, 'kastrounds' => 0, 'rounds' => 0, 'matches' => 0, 'wins' => 0, 'rating_sum' => 0];
     }
     $mapStats[$map]['kills'] += $m['kills'];
     $mapStats[$map]['deaths'] += $m['deaths'];
@@ -235,6 +235,7 @@ foreach ($allMatches as $m) {
     $mapStats[$map]['kastrounds'] += $m['kastrounds'];
     $mapStats[$map]['rounds'] += $m['rounds'];
     $mapStats[$map]['matches']++;
+    $mapStats[$map]['rating_sum'] += $m['rating'];
     if ($m['wl'] === 'W') $mapStats[$map]['wins']++;
 }
 
@@ -244,7 +245,7 @@ foreach ($allMatches as $m) {
     $opp = $m['opp_team'];
     if (empty($opp)) continue;
     if (!isset($h2hStats[$opp])) {
-        $h2hStats[$opp] = ['kills' => 0, 'deaths' => 0, 'assists' => 0, 'damage' => 0, 'kastrounds' => 0, 'rounds' => 0, 'matches' => 0, 'wins' => 0];
+        $h2hStats[$opp] = ['kills' => 0, 'deaths' => 0, 'assists' => 0, 'damage' => 0, 'kastrounds' => 0, 'rounds' => 0, 'matches' => 0, 'wins' => 0, 'rating_sum' => 0];
     }
     $h2hStats[$opp]['kills'] += $m['kills'];
     $h2hStats[$opp]['deaths'] += $m['deaths'];
@@ -253,6 +254,7 @@ foreach ($allMatches as $m) {
     $h2hStats[$opp]['kastrounds'] += $m['kastrounds'];
     $h2hStats[$opp]['rounds'] += $m['rounds'];
     $h2hStats[$opp]['matches']++;
+    $h2hStats[$opp]['rating_sum'] += $m['rating'];
     if ($m['wl'] === 'W') $h2hStats[$opp]['wins']++;
 }
 
@@ -550,7 +552,7 @@ echo '
 
 foreach ($mapStats as $mapName => $ms) {
     $mRounds = max(1, $ms['rounds']);
-    $mRating = calculateHLTV2($ms['kills'], $ms['deaths'], $ms['assists'], $ms['damage'], $ms['kastrounds'], $mRounds);
+    $mRating = $ms['matches'] > 0 ? round($ms['rating_sum'] / $ms['matches'], 2) : 0;
     $mKDR = calculateKDR($ms['kills'], $ms['deaths']);
     $mADR = calculateADR($ms['damage'], $mRounds);
     $mWinPct = $ms['matches'] > 0 ? round(($ms['wins'] / $ms['matches']) * 100, 1) : 0;
@@ -591,7 +593,7 @@ echo '
 
 foreach ($h2hStats as $oppName => $os) {
     $oRounds = max(1, $os['rounds']);
-    $oRating = calculateHLTV2($os['kills'], $os['deaths'], $os['assists'], $os['damage'], $os['kastrounds'], $oRounds);
+    $oRating = $os['matches'] > 0 ? round($os['rating_sum'] / $os['matches'], 2) : 0;
     $oKDR = calculateKDR($os['kills'], $os['deaths']);
     $oADR = calculateADR($os['damage'], $oRounds);
     $oWinPct = $os['matches'] > 0 ? round(($os['wins'] / $os['matches']) * 100, 1) : 0;
