@@ -5,7 +5,6 @@ require_once("functions.php");
 renderPageStart($page_title . " - Leaderboard");
 
 $cache_file = __DIR__ . '/cache_leaderboard.json';
-$players = null;
 
 // Toggle: ?all=1 shows all players, default shows active roster only
 $showAll = isset($_GET['all']) && $_GET['all'] === '1';
@@ -14,17 +13,54 @@ $showAll = isset($_GET['all']) && $_GET['all'] === '1';
 $activePlayers = parseActiveRosterPlayers($bot_rosters_path);
 $hasRoster = !empty($activePlayers);
 
-// Check if cache is still valid (matches latest match_id)
+// ── Cache logic: full rebuild or incremental merge ──
+// Cache format: {match_id: int, players: {name: {id, kills, deaths, assists, damage, kastrounds, rounds, matches}, ...}}
 $latestMatchId = getLatestMatchId($conn);
+$cache = null;
+$playerMap = null;
+
 if (file_exists($cache_file)) {
     $cache = json_decode(file_get_contents($cache_file), true);
-    if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId) {
-        $players = $cache['data'];
-    }
 }
 
-// Cache miss or new match — recompute (always full/unfiltered)
-if ($players === null) {
+if ($cache && isset($cache['match_id']) && $cache['match_id'] === $latestMatchId && isset($cache['players'])) {
+    // Cache hit — no work needed
+    $playerMap = $cache['players'];
+
+} elseif ($cache && isset($cache['match_id']) && isset($cache['players']) && !empty($cache['players'])) {
+    // Incremental update — query only matches newer than cached match_id
+    $playerMap = $cache['players'];
+    $cachedMatchId = $cache['match_id'];
+
+    $stmt = $conn->prepare("SELECT p.id, m.name, m.kills, m.assists, m.deaths, m.damage, m.kastrounds,
+                            (s.team_2 + s.team_3) AS rounds
+                            FROM sql_matches m
+                            INNER JOIN sql_players p ON p.name = m.name
+                            INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
+                            WHERE m.match_id > ?");
+    $stmt->bind_param("i", $cachedMatchId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $name = $row['name'];
+        if (!isset($playerMap[$name])) {
+            $playerMap[$name] = ['id' => (int)$row['id'], 'kills' => 0, 'deaths' => 0, 'assists' => 0,
+                                 'damage' => 0, 'kastrounds' => 0, 'rounds' => 0, 'matches' => 0];
+        }
+        $playerMap[$name]['kills']      += (int)$row['kills'];
+        $playerMap[$name]['deaths']     += (int)$row['deaths'];
+        $playerMap[$name]['assists']    += (int)$row['assists'];
+        $playerMap[$name]['damage']     += (int)$row['damage'];
+        $playerMap[$name]['kastrounds'] += (int)$row['kastrounds'];
+        $playerMap[$name]['rounds']     += (int)$row['rounds'];
+        $playerMap[$name]['matches']++;
+    }
+
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'players' => $playerMap]));
+
+} else {
+    // Full rebuild — no usable cache
     $stmt = $conn->prepare("SELECT 
             p.id,
             m.name,
@@ -39,39 +75,50 @@ if ($players === null) {
         INNER JOIN sql_players p ON p.name = m.name
         INNER JOIN sql_matches_scoretotal s ON s.match_id = m.match_id
         GROUP BY p.id, m.name
-        HAVING COUNT(DISTINCT m.match_id) >= ?
         ORDER BY m.name");
-    $stmt->bind_param("i", $leaderboard_min_matches);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    $players = [];
+    $playerMap = [];
     while ($row = $result->fetch_assoc()) {
-        $rounds = (int)$row['totalrounds'];
-        if ($rounds <= 0) continue;
-
-        $players[] = [
-            'id'       => (int)$row['id'],
-            'name'     => $row['name'],
-            'matches'  => (int)$row['matches'],
-            'kills'    => (int)$row['totalkills'],
-            'deaths'   => (int)$row['totaldeaths'],
-            'kdr'      => calculateKDR($row['totalkills'], $row['totaldeaths']),
-            'adr'      => calculateADR($row['totaldamage'], $rounds),
-            'rating'   => calculateHLTV2($row['totalkills'], $row['totaldeaths'], $row['totalassists'], $row['totaldamage'], $row['totalkastrounds'], $rounds),
+        $playerMap[$row['name']] = [
+            'id'         => (int)$row['id'],
+            'kills'      => (int)$row['totalkills'],
+            'deaths'     => (int)$row['totaldeaths'],
+            'assists'    => (int)$row['totalassists'],
+            'damage'     => (int)$row['totaldamage'],
+            'kastrounds' => (int)$row['totalkastrounds'],
+            'rounds'     => (int)$row['totalrounds'],
+            'matches'    => (int)$row['matches'],
         ];
     }
 
-    // Sort by rating descending
-    usort($players, function($a, $b) {
-        return $b['rating'] <=> $a['rating'];
-    });
-
-    // Cache always stores full unfiltered data
-    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'data' => $players]));
+    file_put_contents($cache_file, json_encode(['match_id' => $latestMatchId, 'players' => $playerMap]));
 }
 
 $conn->close();
+
+// ── Build display array from raw totals ──
+$players = [];
+foreach ($playerMap as $name => $raw) {
+    if ($raw['matches'] < $leaderboard_min_matches) continue;
+    if ($raw['rounds'] <= 0) continue;
+
+    $players[] = [
+        'id'       => $raw['id'],
+        'name'     => $name,
+        'matches'  => $raw['matches'],
+        'kills'    => $raw['kills'],
+        'deaths'   => $raw['deaths'],
+        'kdr'      => calculateKDR($raw['kills'], $raw['deaths']),
+        'adr'      => calculateADR($raw['damage'], $raw['rounds']),
+        'rating'   => calculateHLTV2($raw['kills'], $raw['deaths'], $raw['assists'], $raw['damage'], $raw['kastrounds'], $raw['rounds']),
+    ];
+}
+
+usort($players, function($a, $b) {
+    return $b['rating'] <=> $a['rating'];
+});
 
 // Apply roster filter at display time (unless ?all=1 or no roster file)
 $displayPlayers = $players;
@@ -168,7 +215,7 @@ if (count($displayPlayers) > 0) {
             var isAsc = th.getAttribute('data-order') !== 'asc';
 
             table.querySelectorAll('.sort-arrow').forEach(function(s) { s.textContent = ''; });
-            th.querySelector('.sort-arrow').textContent = isAsc ? ' \u25B2' : ' \u25BC';
+            th.querySelector('.sort-arrow').textContent = isAsc ? ' ▲' : ' ▼';
             th.setAttribute('data-order', isAsc ? 'asc' : 'desc');
 
             rows.sort(function(a, b) {

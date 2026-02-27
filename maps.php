@@ -48,7 +48,6 @@ $maps = array(
     "assets/img/maps/aim_ak-47_go.jpg" => "aim_ak-47_go",
     "assets/img/maps/aim_ak-colt.jpg" => "aim_ak-colt",
 	"assets/img/maps/aim_ak-colt_arg.jpg" => "aim_ak-colt_arg",
-	"assets/img/maps/aim_ak-colt_arg_v2.jpg" => "aim_ak-colt_arg_v2",
     "assets/img/maps/aim_ak-colt_v2.jpg" => "aim_ak-colt_v2",
     "assets/img/maps/aim_ak-colt_v4.jpg" => "aim_ak-colt_v4",
     "assets/img/maps/aim_akm4ruins2.jpg" => "aim_akm4ruins2",
