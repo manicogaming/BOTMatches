@@ -371,8 +371,8 @@ function parseActiveRostersFull($filePath) {
  * Score formula: Starting Rank Value (400 + avg*1600) + H2H Adjustments (uncapped)
  */
 
-define('VRS_FULL_VALUE_ACTIVE_DAYS', 5);   // Full value within this many active days
-define('VRS_DECAY_ACTIVE_DAYS', 60);       // Results fully decay after this many active days
+define('VRS_FULL_VALUE_ACTIVE_DAYS', 10);  // Full value within this many active days
+define('VRS_DECAY_ACTIVE_DAYS', 120);      // Results fully decay after this many active days
 define('VRS_BASE_ELO', 1500);              // Starting Elo for new teams
 define('VRS_K_FACTOR', 32);                // Elo K-factor
 define('VRS_TOP_N', 10);                   // Only top N results count per factor
@@ -452,8 +452,8 @@ function computeTeamRankings($conn, $min_matches = 10, $activeTeams = []) {
     $currentActiveDay = max(array_values($timeline));
     $totalActiveDays = count($timeline);
 
-    // Snapshot point: 7 active days ago for rank change comparison
-    $snapshotActiveDay = max(1, $currentActiveDay - 7);
+    // Snapshot point: 14 active days ago for rank change comparison
+    $snapshotActiveDay = max(1, $currentActiveDay - 14);
 
     $result = $conn->query("SELECT match_id, timestamp, team_2, team_2_name, team_3, team_3_name, map 
                             FROM sql_matches_scoretotal 

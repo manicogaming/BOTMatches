@@ -236,7 +236,7 @@ if (count($displayTeams) > 0) {
         </div>
     </div>
     <p class="text-center text-muted" style="margin-top:10px;">
-        <small>Minimum '.$teams_min_matches.' matches required. Rank changes vs 7 active days ago. Updates automatically after each match.</small>
+        <small>Minimum '.$teams_min_matches.' matches required. Rank changes vs 14 active days ago. Updates automatically after each match.</small>
     </p>
     <p class="text-center text-muted" style="margin-top:2px;">
         <small>'.$rosterNote.'</small>
