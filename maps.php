@@ -676,6 +676,7 @@ $maps = array(
 	"assets/img/maps/de_tides_d.jpg" => "de_tides_d",
 	"assets/img/maps/de_torn_classic.jpg" => "de_torn_classic",
 	"assets/img/maps/de_torntown.jpg" => "de_torntown",
+	"assets/img/maps/de_toscan.jpg" => "de_toscan",
     "assets/img/maps/de_train.jpg" => "de_train",
     "assets/img/maps/de_train_2055.jpg" => "de_train_2055",
     "assets/img/maps/de_train_cyberpunk.jpg" => "de_train_cyberpunk",
